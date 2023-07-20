@@ -104,6 +104,6 @@ class analyzer:
         relevant_options[analyzer.Fields.DISTANCE.value] = relevant_options[analyzer.Fields.DIFFERENCE.value] / relevant_options[analyzer.Fields.CURRENT_PRICE.value] * 100
 
         # highlight aspects
-        relevant_options[analyzer.Fields.TAGS.value] = relevant_options.apply(highlighter.determine, axis=1)
+        relevant_options[analyzer.Fields.TAGS.value] = relevant_options.apply(highlighter.determineTags, axis=1)
 
         return relevant_options[analyzer.DATA_COLUMNS]
