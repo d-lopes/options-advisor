@@ -6,16 +6,10 @@ from yahoo_fin import stock_info as stocks, options as opts
 
 from analyzer import analyzer
 
-# for Testing purposes: 
-# symbols = ['AMZN']
-
-# only NYSE listed stocks are possible
-# BEPC and LPX caused issues. thus they were removed from the list
-symbols = ['CVX', 'AMZN', 'NKE', 'TSM', 'LPX', 'OXY', 'KR', 'KHC', 'BAC', 'ALLY', 'PARA', 'STNE', 'PFE', 'CSX']
-
+symbols = ['CVX', 'AMZN', 'P911', 'NKE', 'TSM', 'LPX', 'OXY', 'KR', 'KHC', 'BAC', 'ALLY', 'PARA', 'ECV', 'STNE', 'PFE', 'CSX', 'BEPC']
 mode = analyzer.Types.PUT
-default_filter = analyzer.Filter.getDefaults()
-default_filter.max_strike = 40
+min_puts = 1000
+min_calls = 1000
 start_week_offset = 3
 end_week_offset = start_week_offset + 4
 
@@ -30,23 +24,19 @@ data = pd.DataFrame(columns=analyzer.DATA_COLUMNS)
 for symbol in symbols:
     try:
         price = stocks.get_live_price(symbol)
-        # skip processing of underlying when live price + 20% is above acceptable strike
-        if (price > default_filter.max_strike * 1.2):
-            logger.warning('price of underlying %s too high. Skipping this symbol!', symbol)
-            continue
     except AssertionError:
-        logger.error('unable to retrieve data for symbol %s. Skipping this symbol!', symbol)
+        logger.error('unable to retrieve data for symbol  %s. Continuing with next symbol!', symbol)
         continue
 
     for week in range(start_week, end_week):
         expiration_date = date.fromisocalendar(2023, week, 5)
         logger.info("get data for %s with expiration date %d", symbol, expiration_date)
 
-        #try:
-        more_data = analyzer.get_info(symbol, mode, expiration_date, price, default_filter)
-        #except KeyError:
-        #    logger.error('unable to analyze data for symbol  %s. Continuing with next symbol!', symbol)
-        #    continue
+        try:
+            more_data = analyzer.get_info(ticker = symbol, type = mode, expiration_date = expiration_date, price = price, filter = [min_calls, min_puts])
+        except KeyError:
+            logger.error('unable to analyze data for symbol  %s. Continuing with next symbol!', symbol)
+            continue
         data = pd.concat([data, more_data], ignore_index=True)
 
 print('Time: ' + now.strftime('%d/%m/%Y, %H:%M:%S'))

@@ -1,7 +1,0 @@
-services:
-  my_container:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./src:/app/src:ro

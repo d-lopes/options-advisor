@@ -17,8 +17,8 @@ adjust the parameters in the top of `./src/run.py`:
 ```python
 symbols = ['BAC']
 mode = analyzer.Types.PUT
-default_filter = analyzer.Filter.getDefaults()
-default_filter.max_strike = 40
+min_puts = 1000
+min_calls = 1000
 start_week_offset = 3
 end_week_offset = start_week_offset + 4
 ```

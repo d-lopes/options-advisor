@@ -1,4 +1,4 @@
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 from enum import Enum
 import logging
 import pandas as pd
@@ -9,28 +9,11 @@ from utils.highlighter import highlighter
 
 class analyzer:
 
-    class Filter:
-        min_puts = None
-        min_calls = None
-        min_yield = None
-        max_strike = None
-
-        def __init__(self, min_puts = 0, min_calls = 0, min_yield = 0, max_strike  = 1000):
-            self.min_puts = min_puts
-            self.min_calls = min_calls
-            self.min_yield = min_yield
-            self.max_strike = max_strike
-
-        @staticmethod
-        def getDefaults():
-            return analyzer.Filter(min_puts = 1000, min_calls = 1000, min_yield = 10, max_strike  = 40)
-
     class Fields(Enum):
         TICKER = 'Ticker'
         TYPE = 'Type'
         EXPIRATION_DATE = 'Exp. Date'
         STRIKE = 'Strike'
-        YIELD = 'Yield (p. a.)'
         CURRENT_PRICE = 'Current Price'
         DIFFERENCE = 'Difference'
         DISTANCE = 'Distance (%)'
@@ -50,21 +33,21 @@ class analyzer:
         PUT = 'PUT'
         CALL = 'CALL'
 
-    DATA_COLUMNS=[Fields.TICKER.value, Fields.TYPE.value, Fields.EXPIRATION_DATE.value, Fields.STRIKE.value, Fields.YIELD.value, Fields.CURRENT_PRICE.value,
-                    Fields.DISTANCE.value, Fields.PREMIUM.value, Fields.BID.value, Fields.ASK.value, Fields.CALLS_CNT.value, Fields.PUTS_CNT.value,
-                    Fields.IMPLIED_VOLATILITY.value, Fields.TAGS.value]
+    DATA_COLUMNS=[Fields.TICKER.value, Fields.TYPE.value, Fields.EXPIRATION_DATE.value, Fields.STRIKE.value, Fields.CURRENT_PRICE.value, Fields.DISTANCE.value, 
+                  Fields.PREMIUM.value, Fields.BID.value, Fields.ASK.value, Fields.CALLS_CNT.value, Fields.PUTS_CNT.value, Fields.IMPLIED_VOLATILITY.value, 
+                  Fields.TAGS.value]
 
     logger = logging.getLogger('analyzer')
 
     @staticmethod
-    def exp_date_from_contract_name(name:str, prefix:str):
+    def exp_date_from_contract_name(name, prefix):
         size = len(name)
         ticker_date_portion = name[:size-9]
         date_str = '20' + ticker_date_portion.replace(prefix, '', 1)
         return datetime.strptime(date_str, '%Y%m%d')
 
     @staticmethod
-    def get_info(ticker: str, type: Types = Types.PUT, expiration_date: date = None, price:float = 0, filter:Filter = None):
+    def get_info(ticker, type = Types.PUT, expiration_date = None, price = 0, filter = [0,0]):
 
         # get options
         options = pd.DataFrame()
@@ -98,6 +81,8 @@ class analyzer:
             options[analyzer.Fields.CALLS_CNT.value] = options[analyzer.Fields.OPEN_INTEREST.value]
             options = options.rename(columns={analyzer.Fields.OPEN_INTEREST.value + '_merged': analyzer.Fields.PUTS_CNT.value })
 
+        #print(options)
+
         # get rid of invalid numeric values
         options = options[pd.to_numeric(options[analyzer.Fields.PUTS_CNT.value], errors='coerce').notnull()]
         options = options[pd.to_numeric(options[analyzer.Fields.CALLS_CNT.value], errors='coerce').notnull()]
@@ -105,31 +90,18 @@ class analyzer:
         # transform data types in columns
         options = options.astype({analyzer.Fields.PUTS_CNT.value:'int', analyzer.Fields.CALLS_CNT.value:'int'})
 
-        # calculate dynamic values
-        options[analyzer.Fields.DIFFERENCE.value] = price - options[analyzer.Fields.STRIKE.value]
-        options[analyzer.Fields.DISTANCE.value] = options[analyzer.Fields.DIFFERENCE.value] / price * 100
-
-        transaction_cost = 2 * 3 / 100 # assumption 3 US$ per transaction (buy and sell of 100 shares)
-        days_per_year = 365
-        holding_period:timedelta = expiration_date - date.today()
-
-        # yield = [ (premium - transaction costs) / strike ] / holding_period * 365 * 100
-        options[analyzer.Fields.YIELD.value] = (options[analyzer.Fields.PREMIUM.value] - transaction_cost) / options[analyzer.Fields.STRIKE.value] / holding_period.days * days_per_year * 100
-
         # filter for relevant data
-        relevant_options = options.loc[
-                            (options[analyzer.Fields.PUTS_CNT.value] >= filter.min_puts) &
-                            (options[analyzer.Fields.CALLS_CNT.value] >= filter.min_calls) &
-                            (options[analyzer.Fields.YIELD.value] >= filter.min_yield) &
-                            (options[analyzer.Fields.STRIKE.value] <= filter.max_strike),
+        relevant_options = options.loc[(options[analyzer.Fields.PUTS_CNT.value] >= filter[0]) & (options[analyzer.Fields.CALLS_CNT.value] >= filter[1]),
                         [analyzer.Fields.CONTRACT_NAME.value, analyzer.Fields.STRIKE.value, analyzer.Fields.PREMIUM.value, analyzer.Fields.BID.value, analyzer.Fields.ASK.value,
                         analyzer.Fields.VOLUME.value,analyzer.Fields.OPEN_INTEREST.value, analyzer.Fields.IMPLIED_VOLATILITY.value, analyzer.Fields.EXPIRATION_DATE.value,
-                        analyzer.Fields.CALLS_CNT.value, analyzer.Fields.PUTS_CNT.value, analyzer.Fields.DIFFERENCE.value, analyzer.Fields.DISTANCE.value, analyzer.Fields.YIELD.value]]
+                        analyzer.Fields.CALLS_CNT.value, analyzer.Fields.PUTS_CNT.value]]
 
-        # add additional "static" values
+        # add additional an calculated values
         relevant_options[analyzer.Fields.TICKER.value] = ticker
         relevant_options[analyzer.Fields.TYPE.value] = type.value
         relevant_options[analyzer.Fields.CURRENT_PRICE.value] = price
+        relevant_options[analyzer.Fields.DIFFERENCE.value] = relevant_options[analyzer.Fields.CURRENT_PRICE.value] - relevant_options[analyzer.Fields.STRIKE.value]
+        relevant_options[analyzer.Fields.DISTANCE.value] = relevant_options[analyzer.Fields.DIFFERENCE.value] / relevant_options[analyzer.Fields.CURRENT_PRICE.value] * 100
 
         # highlight aspects
         relevant_options[analyzer.Fields.TAGS.value] = relevant_options.apply(highlighter.determineTags, axis=1)
