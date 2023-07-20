@@ -1,7 +1,9 @@
 from datetime import datetime, date
-import pandas as pd
-from yahoo_fin import stock_info as stocks, options as opts
 from enum import Enum
+import logging
+import pandas as pd
+
+from yahoo_fin import stock_info as stocks, options as opts
 
 from utils.highlighter import highlighter
 
@@ -35,6 +37,8 @@ class analyzer:
                   Fields.PREMIUM.value, Fields.BID.value, Fields.ASK.value, Fields.CALLS_CNT.value, Fields.PUTS_CNT.value, Fields.IMPLIED_VOLATILITY.value, 
                   Fields.TAGS.value]
 
+    logger = logging.getLogger('analyzer')
+
     @staticmethod
     def exp_date_from_contract_name(name, prefix):
         size = len(name)
@@ -47,7 +51,12 @@ class analyzer:
 
         # get options
         options = pd.DataFrame()
-        all_options = opts.get_options_chain(ticker, expiration_date)
+        try:
+            all_options = opts.get_options_chain(ticker, expiration_date)
+        except ValueError as err:
+            analyzer.logger.error('unable to retrieve data for symbol %s: %s', ticker, err)
+            return pd.DataFrame(columns=analyzer.DATA_COLUMNS)
+
         put_options = all_options['puts']
         call_options = all_options['calls']
 
@@ -61,7 +70,7 @@ class analyzer:
         elif (type == analyzer.Types.CALL):
             options = pd.merge(call_options, put_options, how="left", on=[analyzer.Fields.STRIKE.value, analyzer.Fields.EXPIRATION_DATE.value], suffixes=("", "_merged"))
         else:
-            print("ERROR: unknown type " + type + "!")
+            analyzer.logger.error('unknown type %s', type)
 
         # cosmetic changes: name columns properly
         options = options.rename(columns={'Last Price': analyzer.Fields.PREMIUM.value })
