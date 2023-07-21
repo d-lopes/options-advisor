@@ -2,36 +2,56 @@ import pandas as pd
 from datetime import datetime
 
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import patch
 
-from src.main.analyzer import analyzer as classUnderTest
+from src.main.analyzer import YahooFinanceWrapper
 
-class analyzer_test(unittest.TestCase):
+from src.main.analyzer import Analyzer as ClassUnderTest
 
-    TEST_SYMBOL = 'AMZN'
-    TEST_FILTER = classUnderTest.Filter.getDefaults()
-    TEST_EXP_DATE = expected_value = datetime.fromisoformat('2023-07-21').date()
+class AnalyzerTest(unittest.TestCase):
 
-    # def setUpClass():
-    #     # mock API Calls towards Yahoo Finance Website
-    #     thing = object()
-    #     thing.get_options_chain = MagicMock(return_value=4711)
+    class TestData:
+
+        SYMBOL = 'AMZN'
+        MODE = ClassUnderTest.Types.PUT
+        EXP_DATE = expected_value = datetime.fromisoformat('2023-07-21').date()
+        PRICE = 130
+        FILTER = ClassUnderTest.Filter.getDefaults()
+
+
+    DATA_COLUMNS = ClassUnderTest.DATA_COLUMNS.copy()
+    DATA_COLUMNS.append(ClassUnderTest.Fields.CONTRACT_NAME.value)
+    DATA_COLUMNS.append(ClassUnderTest.Fields.OPEN_INTEREST.value)
 
     def test_get_exp_date_from_contract_name(self):
 
         test_contract_name = 'AMZN230721P00015000'
         expected_value = datetime.fromisoformat('2023-07-21')
 
-        actual_value = classUnderTest.exp_date_from_contract_name(test_contract_name, analyzer_test.TEST_SYMBOL)
+        actual_value = ClassUnderTest.exp_date_from_contract_name(test_contract_name, self.TestData.SYMBOL)
 
         self.assertEqual(expected_value, actual_value, 'unexpected expiration date')
 
-    def test_get_info(self):
-        expected_value = pd.DataFrame()
+    def test_get_info_can_return_empty_list(self):
 
-        actual_value = classUnderTest.get_info(ticker = analyzer_test.TEST_SYMBOL, expiration_date = analyzer_test.TEST_EXP_DATE, filter = analyzer_test.TEST_FILTER)
+        expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
 
-        self.assertEqual(expected_value.empty, actual_value.empty, 'unexpected return data')
+        mocked_data = {}
+        mocked_data['puts'] = pd.DataFrame(columns=self.DATA_COLUMNS)
+        mocked_data['calls'] = pd.DataFrame(columns=self.DATA_COLUMNS)
+
+        with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value = mocked_data) as mocked_method:
+
+            actual_value = ClassUnderTest.get_info(self.TestData.SYMBOL, self.TestData.MODE,
+                                                    self.TestData.EXP_DATE, self.TestData.PRICE,
+                                                    self.TestData.FILTER)
+
+            # ensure mock was called (instead of real yahoo_fin module implementation)
+            mocked_method.assert_called_once()
+            mocked_method.assert_called_with(self.TestData.SYMBOL, self.TestData.EXP_DATE)
+
+            # check results
+            self.assertEqual(expected_value.empty, actual_value.empty, 'unexpected return data')
 
 if __name__ == '__main__':
     unittest.main()

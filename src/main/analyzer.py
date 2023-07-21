@@ -7,6 +7,13 @@ from yahoo_fin import stock_info as stocks, options as opts
 
 from src.main.utils.highlighter import Highlighter
 
+# introduced to being able to mock out the actual calls to Yahoo Finance (done by yahoo_fin module)
+class YahooFinanceWrapper:
+
+    @staticmethod
+    def get_options_chain(ticker, date = None, raw = True, headers = {'User-agent': 'Mozilla/5.0'}):
+        return opts.get_options_chain(ticker=ticker, date=date, raw=raw, headers=headers)
+
 class Analyzer:
 
     class Filter:
@@ -69,13 +76,17 @@ class Analyzer:
         # get options
         options = pd.DataFrame()
         try:
-            all_options = opts.get_options_chain(ticker, expiration_date)
+            all_options = YahooFinanceWrapper.get_options_chain(ticker, expiration_date)
         except ValueError as err:
             Analyzer.logger.error('unable to retrieve data for symbol %s: %s', ticker, err)
             return pd.DataFrame(columns=Analyzer.DATA_COLUMNS)
 
         put_options = all_options['puts']
         call_options = all_options['calls']
+
+        # guard: if no data is returned then stop processing
+        if (put_options.empty & call_options.empty):
+             return pd.DataFrame(columns=Analyzer.DATA_COLUMNS)
 
         # extract expiration dates
         put_options[Analyzer.Fields.EXPIRATION_DATE.value] = put_options[Analyzer.Fields.CONTRACT_NAME.value].transform(lambda name: Analyzer.exp_date_from_contract_name(name, ticker))
