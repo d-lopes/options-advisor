@@ -14,6 +14,10 @@ class YahooFinanceWrapper:
     def get_options_chain(ticker, date = None, raw = True, headers = {'User-agent': 'Mozilla/5.0'}):
         return opts.get_options_chain(ticker=ticker, date=date, raw=raw, headers=headers)
 
+    @staticmethod
+    def get_live_price(symbol):
+        return stocks.get_live_price(symbol)
+
 class Analyzer:
 
     class Filter:
@@ -86,7 +90,7 @@ class Analyzer:
 
         # guard: if no data is returned then stop processing
         if (put_options.empty & call_options.empty):
-             return pd.DataFrame(columns=Analyzer.DATA_COLUMNS)
+            return pd.DataFrame(columns=Analyzer.DATA_COLUMNS)
 
         # extract expiration dates
         put_options[Analyzer.Fields.EXPIRATION_DATE.value] = put_options[Analyzer.Fields.CONTRACT_NAME.value].transform(lambda name: Analyzer.exp_date_from_contract_name(name, ticker))
@@ -146,3 +150,31 @@ class Analyzer:
         relevant_options[Analyzer.Fields.TAGS.value] = relevant_options.apply(Highlighter.determineTags, axis=1)
 
         return relevant_options[Analyzer.DATA_COLUMNS]
+
+    def get_options(symbols = [], mode: Types = Types.PUT, year: int = 2023, start_week: int = 1, end_week: int = 1, filter:Filter = None):
+        data = pd.DataFrame(columns=Analyzer.DATA_COLUMNS)
+
+        for symbol in symbols:
+            try:
+                price = YahooFinanceWrapper.get_live_price(symbol)
+                # skip processing of underlying when live price + 20% is above acceptable strike
+                if (filter is not None):
+                    if (price > filter.max_strike * 1.2):
+                        Analyzer.logger.warning('price of underlying %s is too high. Skipping this symbol!', symbol)
+                        continue
+            except AssertionError:
+                Analyzer.logger.error('unable to retrieve data for symbol %s. Skipping this symbol!', symbol)
+                continue
+
+            for week in range(start_week, end_week):
+                expiration_date = date.fromisocalendar(year, week, 5)
+                Analyzer.logger.info("get data for %s with expiration date %d", symbol, expiration_date)
+
+                try:
+                    more_data = Analyzer.get_info(symbol, mode, expiration_date, price, filter)
+                except KeyError:
+                    Analyzer.logger.error('unable to analyze data for symbol %s. Continuing with next symbol!', symbol)
+                    continue
+                data = pd.concat([data, more_data], ignore_index=True)
+
+        return data
