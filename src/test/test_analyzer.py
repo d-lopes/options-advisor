@@ -4,7 +4,7 @@ from datetime import datetime
 import unittest
 from unittest.mock import MagicMock
 
-from main.analyzer import analyzer as classUnderTest
+from src.main.analyzer import analyzer as classUnderTest
 
 class analyzer_test(unittest.TestCase):
 
