@@ -4,7 +4,7 @@ import logging
 
 from yahoo_fin import stock_info as stocks, options as opts
 
-from src.main.analyzer import analyzer
+from src.main.analyzer import Analyzer
 
 # for Testing purposes: 
 symbols = ['AMZN']
@@ -13,8 +13,8 @@ symbols = ['AMZN']
 # BEPC and LPX caused issues. thus they were removed from the list of symbols below
 # symbols = ['CVX', 'AMZN', 'NKE', 'TSM', 'LPX', 'OXY', 'KR', 'KHC', 'BAC', 'ALLY', 'PARA', 'STNE', 'PFE', 'CSX']
 
-mode = analyzer.Types.PUT
-default_filter = analyzer.Filter.getDefaults()
+mode = Analyzer.Types.PUT
+default_filter = Analyzer.Filter.getDefaults()
 default_filter.max_strike = 40
 start_week_offset = 3
 end_week_offset = start_week_offset + 4
@@ -25,7 +25,7 @@ start_week = now.isocalendar().week + start_week_offset
 end_week = start_week - start_week_offset + end_week_offset
 logger = logging.getLogger('main')
 
-data = pd.DataFrame(columns=analyzer.DATA_COLUMNS)
+data = pd.DataFrame(columns=Analyzer.DATA_COLUMNS)
 
 if __name__ == '__main__':
     for symbol in symbols:
@@ -44,7 +44,7 @@ if __name__ == '__main__':
             logger.info("get data for %s with expiration date %d", symbol, expiration_date)
 
             #try:
-            more_data = analyzer.get_info(symbol, mode, expiration_date, price, default_filter)
+            more_data = Analyzer.get_info(symbol, mode, expiration_date, price, default_filter)
             #except KeyError:
             #    logger.error('unable to analyze data for symbol  %s. Continuing with next symbol!', symbol)
             #    continue

@@ -5,9 +5,9 @@ import pandas as pd
 
 from yahoo_fin import stock_info as stocks, options as opts
 
-from src.main.utils.highlighter import highlighter
+from src.main.utils.highlighter import Highlighter
 
-class analyzer:
+class Analyzer:
 
     class Filter:
         min_puts = None
@@ -23,7 +23,7 @@ class analyzer:
 
         @staticmethod
         def getDefaults():
-            return analyzer.Filter(min_puts = 1000, min_calls = 1000, min_yield = 10, max_strike  = 40)
+            return Analyzer.Filter(min_puts = 1000, min_calls = 1000, min_yield = 10, max_strike  = 40)
 
     class Fields(Enum):
         TICKER = 'Ticker'
@@ -71,67 +71,67 @@ class analyzer:
         try:
             all_options = opts.get_options_chain(ticker, expiration_date)
         except ValueError as err:
-            analyzer.logger.error('unable to retrieve data for symbol %s: %s', ticker, err)
-            return pd.DataFrame(columns=analyzer.DATA_COLUMNS)
+            Analyzer.logger.error('unable to retrieve data for symbol %s: %s', ticker, err)
+            return pd.DataFrame(columns=Analyzer.DATA_COLUMNS)
 
         put_options = all_options['puts']
         call_options = all_options['calls']
 
         # extract expiration dates
-        put_options[analyzer.Fields.EXPIRATION_DATE.value] = put_options[analyzer.Fields.CONTRACT_NAME.value].transform(lambda name: analyzer.exp_date_from_contract_name(name, ticker))
-        call_options[analyzer.Fields.EXPIRATION_DATE.value] = call_options[analyzer.Fields.CONTRACT_NAME.value].transform(lambda name: analyzer.exp_date_from_contract_name(name, ticker))
+        put_options[Analyzer.Fields.EXPIRATION_DATE.value] = put_options[Analyzer.Fields.CONTRACT_NAME.value].transform(lambda name: Analyzer.exp_date_from_contract_name(name, ticker))
+        call_options[Analyzer.Fields.EXPIRATION_DATE.value] = call_options[Analyzer.Fields.CONTRACT_NAME.value].transform(lambda name: Analyzer.exp_date_from_contract_name(name, ticker))
 
         # link PUTs and CALLs based on their strike price and expiration date
-        if (type == analyzer.Types.PUT):
-            options = pd.merge(put_options, call_options, how="left", on=[analyzer.Fields.STRIKE.value, analyzer.Fields.EXPIRATION_DATE.value], suffixes=("", "_merged"))
-        elif (type == analyzer.Types.CALL):
-            options = pd.merge(call_options, put_options, how="left", on=[analyzer.Fields.STRIKE.value, analyzer.Fields.EXPIRATION_DATE.value], suffixes=("", "_merged"))
+        if (type == Analyzer.Types.PUT):
+            options = pd.merge(put_options, call_options, how="left", on=[Analyzer.Fields.STRIKE.value, Analyzer.Fields.EXPIRATION_DATE.value], suffixes=("", "_merged"))
+        elif (type == Analyzer.Types.CALL):
+            options = pd.merge(call_options, put_options, how="left", on=[Analyzer.Fields.STRIKE.value, Analyzer.Fields.EXPIRATION_DATE.value], suffixes=("", "_merged"))
         else:
-            analyzer.logger.error('unknown type %s', type)
+            Analyzer.logger.error('unknown type %s', type)
 
         # cosmetic changes: name columns properly
-        options = options.rename(columns={'Last Price': analyzer.Fields.PREMIUM.value })
-        if (type == analyzer.Types.PUT):
-            options[analyzer.Fields.PUTS_CNT.value] = options[analyzer.Fields.OPEN_INTEREST.value]
-            options = options.rename(columns={analyzer.Fields.OPEN_INTEREST.value + '_merged': analyzer.Fields.CALLS_CNT.value })
-        elif (type == analyzer.Types.CALL):
-            options[analyzer.Fields.CALLS_CNT.value] = options[analyzer.Fields.OPEN_INTEREST.value]
-            options = options.rename(columns={analyzer.Fields.OPEN_INTEREST.value + '_merged': analyzer.Fields.PUTS_CNT.value })
+        options = options.rename(columns={'Last Price': Analyzer.Fields.PREMIUM.value })
+        if (type == Analyzer.Types.PUT):
+            options[Analyzer.Fields.PUTS_CNT.value] = options[Analyzer.Fields.OPEN_INTEREST.value]
+            options = options.rename(columns={Analyzer.Fields.OPEN_INTEREST.value + '_merged': Analyzer.Fields.CALLS_CNT.value })
+        elif (type == Analyzer.Types.CALL):
+            options[Analyzer.Fields.CALLS_CNT.value] = options[Analyzer.Fields.OPEN_INTEREST.value]
+            options = options.rename(columns={Analyzer.Fields.OPEN_INTEREST.value + '_merged': Analyzer.Fields.PUTS_CNT.value })
 
         # get rid of invalid numeric values
-        options = options[pd.to_numeric(options[analyzer.Fields.PUTS_CNT.value], errors='coerce').notnull()]
-        options = options[pd.to_numeric(options[analyzer.Fields.CALLS_CNT.value], errors='coerce').notnull()]
+        options = options[pd.to_numeric(options[Analyzer.Fields.PUTS_CNT.value], errors='coerce').notnull()]
+        options = options[pd.to_numeric(options[Analyzer.Fields.CALLS_CNT.value], errors='coerce').notnull()]
 
         # transform data types in columns
-        options = options.astype({analyzer.Fields.PUTS_CNT.value:'int', analyzer.Fields.CALLS_CNT.value:'int'})
+        options = options.astype({Analyzer.Fields.PUTS_CNT.value:'int', Analyzer.Fields.CALLS_CNT.value:'int'})
 
         # calculate dynamic values
-        options[analyzer.Fields.DIFFERENCE.value] = price - options[analyzer.Fields.STRIKE.value]
-        options[analyzer.Fields.DISTANCE.value] = options[analyzer.Fields.DIFFERENCE.value] / price * 100
+        options[Analyzer.Fields.DIFFERENCE.value] = price - options[Analyzer.Fields.STRIKE.value]
+        options[Analyzer.Fields.DISTANCE.value] = options[Analyzer.Fields.DIFFERENCE.value] / price * 100
 
         transaction_cost = 2 * 3 / 100 # assumption 3 US$ per transaction (buy and sell of 100 shares)
         days_per_year = 365
         holding_period:timedelta = expiration_date - date.today()
 
         # yield = [ (premium - transaction costs) / strike ] / holding_period * 365 * 100
-        options[analyzer.Fields.YIELD.value] = (options[analyzer.Fields.PREMIUM.value] - transaction_cost) / options[analyzer.Fields.STRIKE.value] / holding_period.days * days_per_year * 100
+        options[Analyzer.Fields.YIELD.value] = (options[Analyzer.Fields.PREMIUM.value] - transaction_cost) / options[Analyzer.Fields.STRIKE.value] / holding_period.days * days_per_year * 100
 
         # filter for relevant data
         relevant_options = options.loc[
-                            (options[analyzer.Fields.PUTS_CNT.value] >= filter.min_puts) &
-                            (options[analyzer.Fields.CALLS_CNT.value] >= filter.min_calls) &
-                            (options[analyzer.Fields.YIELD.value] >= filter.min_yield) &
-                            (options[analyzer.Fields.STRIKE.value] <= filter.max_strike),
-                        [analyzer.Fields.CONTRACT_NAME.value, analyzer.Fields.STRIKE.value, analyzer.Fields.PREMIUM.value, analyzer.Fields.BID.value, analyzer.Fields.ASK.value,
-                        analyzer.Fields.VOLUME.value,analyzer.Fields.OPEN_INTEREST.value, analyzer.Fields.IMPLIED_VOLATILITY.value, analyzer.Fields.EXPIRATION_DATE.value,
-                        analyzer.Fields.CALLS_CNT.value, analyzer.Fields.PUTS_CNT.value, analyzer.Fields.DIFFERENCE.value, analyzer.Fields.DISTANCE.value, analyzer.Fields.YIELD.value]]
+                            (options[Analyzer.Fields.PUTS_CNT.value] >= filter.min_puts) &
+                            (options[Analyzer.Fields.CALLS_CNT.value] >= filter.min_calls) &
+                            (options[Analyzer.Fields.YIELD.value] >= filter.min_yield) &
+                            (options[Analyzer.Fields.STRIKE.value] <= filter.max_strike),
+                        [Analyzer.Fields.CONTRACT_NAME.value, Analyzer.Fields.STRIKE.value, Analyzer.Fields.PREMIUM.value, Analyzer.Fields.BID.value, Analyzer.Fields.ASK.value,
+                        Analyzer.Fields.VOLUME.value,Analyzer.Fields.OPEN_INTEREST.value, Analyzer.Fields.IMPLIED_VOLATILITY.value, Analyzer.Fields.EXPIRATION_DATE.value,
+                        Analyzer.Fields.CALLS_CNT.value, Analyzer.Fields.PUTS_CNT.value, Analyzer.Fields.DIFFERENCE.value, Analyzer.Fields.DISTANCE.value, Analyzer.Fields.YIELD.value]]
 
         # add additional "static" values
-        relevant_options[analyzer.Fields.TICKER.value] = ticker
-        relevant_options[analyzer.Fields.TYPE.value] = type.value
-        relevant_options[analyzer.Fields.CURRENT_PRICE.value] = price
+        relevant_options[Analyzer.Fields.TICKER.value] = ticker
+        relevant_options[Analyzer.Fields.TYPE.value] = type.value
+        relevant_options[Analyzer.Fields.CURRENT_PRICE.value] = price
 
         # highlight aspects
-        relevant_options[analyzer.Fields.TAGS.value] = relevant_options.apply(highlighter.determineTags, axis=1)
+        relevant_options[Analyzer.Fields.TAGS.value] = relevant_options.apply(Highlighter.determineTags, axis=1)
 
-        return relevant_options[analyzer.DATA_COLUMNS]
+        return relevant_options[Analyzer.DATA_COLUMNS]
