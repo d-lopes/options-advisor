@@ -1,4 +1,4 @@
-import analyzer as root
+import src.analyzer as root
 from enum import Enum
 class highlighter:
 
