@@ -35,6 +35,6 @@ tbd
 
 ## How to test?
 
-simply run `python3 -m unittest` from the root directory
+simply run `python3 -m unittest` from the `src` directory
 
 see answer to following stack overflow article for further info: <https://stackoverflow.com/questions/1896918/running-unittest-with-typical-test-directory-structure>

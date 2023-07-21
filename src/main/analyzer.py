@@ -5,7 +5,7 @@ import pandas as pd
 
 from yahoo_fin import stock_info as stocks, options as opts
 
-from src.utils.highlighter import highlighter
+from main.utils.highlighter import highlighter
 
 class analyzer:
 

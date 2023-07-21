@@ -10,7 +10,7 @@ from analyzer import analyzer
 # symbols = ['AMZN']
 
 # only NYSE listed stocks are possible
-# BEPC and LPX caused issues. thus they were removed from the list
+# BEPC and LPX caused issues. thus they were removed from the list of symbols below
 symbols = ['CVX', 'AMZN', 'NKE', 'TSM', 'LPX', 'OXY', 'KR', 'KHC', 'BAC', 'ALLY', 'PARA', 'STNE', 'PFE', 'CSX']
 
 mode = analyzer.Types.PUT

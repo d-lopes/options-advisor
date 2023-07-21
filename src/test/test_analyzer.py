@@ -1,13 +1,16 @@
+import pandas as pd
+from datetime import datetime
+
 import unittest
 from unittest.mock import MagicMock
 
-from datetime import datetime
-
-from src.analyzer import analyzer as classUnderTest
+from main.analyzer import analyzer as classUnderTest
 
 class analyzer_test(unittest.TestCase):
 
     TEST_SYMBOL = 'AMZN'
+    TEST_FILTER = classUnderTest.Filter.getDefaults()
+    TEST_EXP_DATE = expected_value = datetime.fromisoformat('2023-07-21').date()
 
     # def setUpClass():
     #     # mock API Calls towards Yahoo Finance Website
@@ -24,7 +27,11 @@ class analyzer_test(unittest.TestCase):
         self.assertEqual(expected_value, actual_value, 'unexpected expiration date')
 
     def test_get_info(self):
-        classUnderTest.get_info()
+        expected_value = pd.DataFrame()
+
+        actual_value = classUnderTest.get_info(ticker = analyzer_test.TEST_SYMBOL, expiration_date = analyzer_test.TEST_EXP_DATE, filter = analyzer_test.TEST_FILTER)
+
+        self.assertEqual(expected_value.empty, actual_value.empty, 'unexpected return data')
 
 if __name__ == '__main__':
     unittest.main()

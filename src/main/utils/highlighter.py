@@ -1,5 +1,7 @@
-import src.analyzer as root
 from enum import Enum
+
+import main.analyzer as root
+
 class highlighter:
 
     class Tags(Enum):
