@@ -2,7 +2,7 @@ from datetime import datetime, date
 import pandas as pd
 import logging
 
-from src.main.analyzer import Analyzer
+from src.main.analyzer import OptionsAnalyzer as Analyzer
 
 # only NYSE listed stocks are possible
 # BEPC and LPX caused issues. thus they were removed from the list of symbols below
