@@ -53,5 +53,22 @@ class AnalyzerTest(unittest.TestCase):
             # check results
             self.assertEqual(expected_value.empty, actual_value.empty, 'unexpected return data')
 
+    def test_get_options_skips_too_expensive_underlying(self):
+
+        expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
+
+        mocked_data = 140
+
+        with patch.object(YahooFinanceWrapper, 'get_live_price', return_value = mocked_data) as mocked_method:
+
+            actual_value = ClassUnderTest.get_options(symbols = [self.TestData.SYMBOL])
+
+            # ensure mock was called (instead of real yahoo_fin module implementation)
+            mocked_method.assert_called_once()
+            mocked_method.assert_called_with(self.TestData.SYMBOL)
+
+            # check results
+            self.assertEqual(expected_value.empty, actual_value.empty, 'unexpected return data')
+
 if __name__ == '__main__':
     unittest.main()
