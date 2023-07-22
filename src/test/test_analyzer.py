@@ -1,4 +1,5 @@
 import pandas as pd
+import pandas.testing as pd_testing
 from datetime import date, datetime
 
 import unittest
@@ -16,8 +17,14 @@ class AnalyzerTest(unittest.TestCase):
         SYMBOL = 'BAC'
         MODE = ClassUnderTest.Types.PUT
         EXP_DATE = date.fromisoformat('2023-08-18')
-        PRICE = 31.565001
+        PRICE = 31.66
         FILTER = ClassUnderTest.Filter.getDefaults()
+
+        EXAMPLE_RESULT = pd.DataFrame([
+            [SYMBOL,  MODE.value, datetime.fromisoformat('2023-08-18'), 32.0, 37.175925925925924, PRICE, -1.073911, 0.94, 0.93, 0.95, 1252, 5575, '21.39%', ['goodYield']],
+            [SYMBOL,  MODE.value, datetime.fromisoformat('2023-09-01'), 32.0, 46.8923611111111, PRICE, -1.073911, 1.17, 1.17, 1.21, 1252, 8574, '23.58%', ['goodYield']]
+        ], columns=ClassUnderTest.DATA_COLUMNS)
+        EXAMPLE_RESULT = EXAMPLE_RESULT.reset_index(drop=True)
 
     class MockData:
 
@@ -29,7 +36,16 @@ class AnalyzerTest(unittest.TestCase):
         EMPTY_RESPONSE = None
         EXAMPLE_RESPONSE = None
 
+    def assert_frame_equal(self, a, b, msg):
+        try:
+            pd_testing.assert_frame_equal(a, b)
+        except AssertionError as e:
+            raise self.failureException(msg) from e
+
     def setUp(self):
+        # enable comparison of data frames
+        self.addTypeEqualityFunc(pd.DataFrame, self.assert_frame_equal)
+
         self.MockData.EMPTY_RESPONSE = {}
         self.MockData.EMPTY_RESPONSE['puts'] = pd.DataFrame(columns=self.MockData.COLUMNS)
         self.MockData.EMPTY_RESPONSE['calls'] = pd.DataFrame(columns=self.MockData.COLUMNS)
@@ -117,7 +133,7 @@ class AnalyzerTest(unittest.TestCase):
 
         self.assertEqual(expected_value, actual_value, 'unexpected expiration date')
 
-    def test_get_info_can_return_empty_list(self):
+    def test_get_info_transforms_empty_input(self):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
         mocked_data = self.MockData.EMPTY_RESPONSE
@@ -133,23 +149,45 @@ class AnalyzerTest(unittest.TestCase):
             mocked_method.assert_called_with(self.TestData.SYMBOL, self.TestData.EXP_DATE)
 
             # check results
-            self.assertEqual(expected_value.empty, actual_value.empty, 'unexpected return data')
+            self.assertEqual(expected_value, actual_value, 'unexpected return data')
+
+    def test_get_info_transforms_example_input(self):
+
+        expected_value = self.TestData.EXAMPLE_RESULT
+        mocked_data = self.MockData.EXAMPLE_RESPONSE
+
+        with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value = mocked_data) as mocked_method:
+
+            actual_value = ClassUnderTest.get_info(self.TestData.SYMBOL, self.TestData.MODE,
+                self.TestData.EXP_DATE, self.TestData.PRICE, self.TestData.FILTER)
+
+            # ensure mock was called (instead of real yahoo_fin module implementation)
+            mocked_method.assert_called_once()
+            mocked_method.assert_called_with(self.TestData.SYMBOL, self.TestData.EXP_DATE)
+
+            # check results
+            self.assertEqual(expected_value, actual_value, 'unexpected return data')
 
     def test_get_options_skips_too_expensive_underlying(self):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
         mocked_data = 40
+        mocked_data_2 = self.MockData.EMPTY_RESPONSE
 
-        with patch.object(YahooFinanceWrapper, 'get_live_price', return_value = mocked_data) as mocked_method:
+        with patch.object(YahooFinanceWrapper, 'get_live_price', return_value = mocked_data) as mocked_get_live_price:
+            with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value = mocked_data_2) as mocked_get_options_chain:
 
-            actual_value = ClassUnderTest.get_options(symbols = [self.TestData.SYMBOL])
+                actual_value = ClassUnderTest.get_options(symbols = [self.TestData.SYMBOL])
 
-            # ensure mock was called (instead of real yahoo_fin module implementation)
-            mocked_method.assert_called_once()
-            mocked_method.assert_called_with(self.TestData.SYMBOL)
+                # ensure mock for get_live_price() was called
+                mocked_get_live_price.assert_called_once()
+                mocked_get_live_price.assert_called_with(self.TestData.SYMBOL)
 
-            # check results
-            self.assertEqual(expected_value.empty, actual_value.empty, 'unexpected return data')
+                # ensure mock for get_options_chain() was NOT called
+                mocked_get_options_chain.assert_not_called()
+
+                # check results
+                self.assertEqual(expected_value, actual_value, 'unexpected return data')
 
     def test_get_options_computes_correct_expiration_dates(self):
 
@@ -168,7 +206,7 @@ class AnalyzerTest(unittest.TestCase):
                 mocked_method.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-09-01"))
 
                 # check results
-                self.assertEqual(expected_value.empty, actual_value.empty, 'unexpected return data')
+                self.assertEqual(expected_value, actual_value, 'unexpected return data')
 
 if __name__ == '__main__':
     unittest.main()

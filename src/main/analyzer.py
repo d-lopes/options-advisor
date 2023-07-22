@@ -76,7 +76,6 @@ class OptionsAnalyzer:
 
     @staticmethod
     def get_info(ticker: str, type: Types = Types.PUT, expiration_date: date = None, price:float = 0, filter:Filter = None):
-
         # get options
         options = pd.DataFrame()
         try:
@@ -84,7 +83,7 @@ class OptionsAnalyzer:
         except ValueError as err:
             OptionsAnalyzer.logger.error('unable to retrieve data for symbol %s: %s', ticker, err)
             return pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
-
+        
         put_options = all_options['puts']
         call_options = all_options['calls']
 
@@ -148,6 +147,9 @@ class OptionsAnalyzer:
 
         # highlight aspects
         relevant_options[OptionsAnalyzer.Fields.TAGS.value] = relevant_options.apply(Highlighter.determineTags, axis=1)
+        
+        # reindex or clean data frame
+        relevant_options = relevant_options.reset_index(drop=True)
 
         return relevant_options[OptionsAnalyzer.DATA_COLUMNS]
 
@@ -176,5 +178,8 @@ class OptionsAnalyzer:
                     OptionsAnalyzer.logger.error('unable to analyze data for symbol %s. Continuing with next symbol!', symbol)
                     continue
                 data = pd.concat([data, more_data], ignore_index=True)
+
+        # reindex for clean data frame
+        data = data.reset_index(drop=True)
 
         return data
