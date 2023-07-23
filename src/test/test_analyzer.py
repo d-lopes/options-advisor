@@ -17,6 +17,7 @@ class AnalyzerTest(unittest.TestCase):
         SYMBOL = 'BAC'
         MODE = ClassUnderTest.Types.PUT
         EXP_DATE = date.fromisoformat('2023-08-18')
+        CURRENT_DATE = date.fromisoformat('2023-07-22')
         PRICE = 31.66
         FILTER = ClassUnderTest.Filter.getDefaults()
 
@@ -142,7 +143,7 @@ class AnalyzerTest(unittest.TestCase):
 
             actual_value = ClassUnderTest.get_info(self.TestData.SYMBOL, self.TestData.MODE,
                 self.TestData.EXP_DATE, self.TestData.PRICE,
-                self.TestData.FILTER)
+                self.TestData.FILTER, self.TestData.CURRENT_DATE)
 
             # ensure mock was called (instead of real yahoo_fin module implementation)
             mocked_method.assert_called_once()
@@ -159,13 +160,15 @@ class AnalyzerTest(unittest.TestCase):
         with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value = mocked_data) as mocked_method:
 
             actual_value = ClassUnderTest.get_info(self.TestData.SYMBOL, self.TestData.MODE,
-                self.TestData.EXP_DATE, self.TestData.PRICE, self.TestData.FILTER)
+                self.TestData.EXP_DATE, self.TestData.PRICE, self.TestData.FILTER, self.TestData.CURRENT_DATE)
 
             # ensure mock was called (instead of real yahoo_fin module implementation)
             mocked_method.assert_called_once()
             mocked_method.assert_called_with(self.TestData.SYMBOL, self.TestData.EXP_DATE)
 
             # check results
+            self.assertEqual(expected_value.empty, actual_value.empty, 'returned data frame is empty')
+            self.assertEqual(expected_value.size, actual_value.size, 'unexpected size of data frame')
             self.assertEqual(expected_value, actual_value, 'unexpected return data')
 
     def test_get_options_skips_too_expensive_underlying(self):

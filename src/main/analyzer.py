@@ -75,7 +75,8 @@ class OptionsAnalyzer:
         return datetime.strptime(date_str, '%Y%m%d')
 
     @staticmethod
-    def get_info(ticker: str, type: Types = Types.PUT, expiration_date: date = None, price:float = 0, filter:Filter = None):
+    def get_info(ticker: str, type: Types = Types.PUT, expiration_date: date = None,
+                    price:float = 0, filter:Filter = None, order_date:date = date.today()):
         # get options
         options = pd.DataFrame()
         try:
@@ -83,7 +84,7 @@ class OptionsAnalyzer:
         except ValueError as err:
             OptionsAnalyzer.logger.error('unable to retrieve data for symbol %s: %s', ticker, err)
             return pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
-        
+
         put_options = all_options['puts']
         call_options = all_options['calls']
 
@@ -125,7 +126,7 @@ class OptionsAnalyzer:
 
         transaction_cost = 2 * 3 / 100 # assumption 3 US$ per transaction (buy and sell of 100 shares)
         days_per_year = 365
-        holding_period:timedelta = expiration_date - date.today()
+        holding_period:timedelta = expiration_date - order_date
 
         # yield = [ (premium - transaction costs) / strike ] / holding_period * 365 * 100
         options[OptionsAnalyzer.Fields.YIELD.value] = (options[OptionsAnalyzer.Fields.PREMIUM.value] - transaction_cost) / options[OptionsAnalyzer.Fields.STRIKE.value] / holding_period.days * days_per_year * 100
@@ -146,8 +147,8 @@ class OptionsAnalyzer:
         relevant_options[OptionsAnalyzer.Fields.CURRENT_PRICE.value] = price
 
         # highlight aspects
-        relevant_options[OptionsAnalyzer.Fields.TAGS.value] = relevant_options.apply(Highlighter.determineTags, axis=1)
-        
+        relevant_options[OptionsAnalyzer.Fields.TAGS.value] = relevant_options.apply(Highlighter.determine_tags, axis=1)
+
         # reindex or clean data frame
         relevant_options = relevant_options.reset_index(drop=True)
 
@@ -170,10 +171,11 @@ class OptionsAnalyzer:
 
             for week in range(start_week, end_week):
                 expiration_date = date.fromisocalendar(year, week, 5)
+                order_date = date.today()
                 OptionsAnalyzer.logger.info("get data for %s with expiration date %d", symbol, expiration_date)
 
                 try:
-                    more_data = OptionsAnalyzer.get_info(symbol, mode, expiration_date, price, filter)
+                    more_data = OptionsAnalyzer.get_info(symbol, mode, expiration_date, price, filter, order_date)
                 except KeyError:
                     OptionsAnalyzer.logger.error('unable to analyze data for symbol %s. Continuing with next symbol!', symbol)
                     continue

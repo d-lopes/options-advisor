@@ -10,7 +10,7 @@ class Highlighter:
         BALANCED_PUT_CALL_RATIO = 'balancedPutCallRatio'
 
     @staticmethod
-    def determineTags(row):
+    def determine_tags(row):
         tags = []
 
         #1: mark rows with a distance between strike and current price >= 10%
