@@ -43,4 +43,12 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest --junitxml=out/test/junit/test-results.xml --cov=src/test --cov-report=xml 
+        pytest --junitxml=out/test/junit/test-results.xml --cov=src/test --cov-report=xml
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: |
+          out/test/junit/test-results.xml
+          out/test/junit/test-results/**/*.xml
+          out/test/junit/test-results/**/*.json
