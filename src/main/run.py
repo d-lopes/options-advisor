@@ -1,5 +1,4 @@
-from datetime import datetime, date
-import pandas as pd
+from datetime import datetime
 import logging
 
 from src.main.analyzer import OptionsAnalyzer as Analyzer
@@ -15,7 +14,7 @@ start_week_offset = 3
 end_week_offset = start_week_offset + 4
 
 # get possible expiration dates between start and end date
-now = datetime.now() # current date and time
+now = datetime.now()    # current date and time
 start_week = now.isocalendar().week + start_week_offset
 end_week = start_week - start_week_offset + end_week_offset
 logger = logging.getLogger('main')

@@ -9,6 +9,7 @@ from src.main.analyzer import YahooFinanceWrapper
 
 from src.main.analyzer import OptionsAnalyzer as ClassUnderTest
 
+
 class AnalyzerTest(unittest.TestCase):
 
     class TestData:
@@ -22,17 +23,20 @@ class AnalyzerTest(unittest.TestCase):
         FILTER = ClassUnderTest.Filter.getDefaults()
 
         EXAMPLE_RESULT = pd.DataFrame([
-            [SYMBOL,  MODE.value, datetime.fromisoformat('2023-08-18'), 32.0, 37.175925925925924, PRICE, -1.073911, 0.94, 0.93, 0.95, 1252, 5575, '21.39%', ['goodYield']],
-            [SYMBOL,  MODE.value, datetime.fromisoformat('2023-09-01'), 32.0, 46.8923611111111, PRICE, -1.073911, 1.17, 1.17, 1.21, 1252, 8574, '23.58%', ['goodYield']]
+            [SYMBOL,  MODE.value, datetime.fromisoformat('2023-08-18'), 32.0, 37.175925925925924, PRICE, -1.073911, 0.94,
+             0.93, 0.95, 1252, 5575, '21.39%', ['goodYield']],
+            [SYMBOL,  MODE.value, datetime.fromisoformat('2023-09-01'), 32.0, 46.8923611111111, PRICE, -1.073911, 1.17,
+             1.17, 1.21, 1252, 8574, '23.58%', ['goodYield']]
         ], columns=ClassUnderTest.DATA_COLUMNS)
         EXAMPLE_RESULT = EXAMPLE_RESULT.reset_index(drop=True)
 
     class MockData:
 
-        # Contract Name, Last Trade Date, Strike, Last Price, Bid, Ask, Change, % Change, Volume, Open Interest, Implied Volatility
-        COLUMNS = [ClassUnderTest.Fields.CONTRACT_NAME.value, 'Last Trade Date', ClassUnderTest.Fields.STRIKE.value, 'Last Price',
-                    ClassUnderTest.Fields.BID.value, ClassUnderTest.Fields.ASK.value, 'Change', '% Change', ClassUnderTest.Fields.VOLUME.value,
-                    ClassUnderTest.Fields.OPEN_INTEREST.value, ClassUnderTest.Fields.IMPLIED_VOLATILITY.value]
+        # Contract Name, Last Trade Date, Strike, Last Price, Bid, Ask, Change, % Change, Volume, Open Interest, Volatility
+        COLUMNS = [ClassUnderTest.Fields.CONTRACT_NAME.value, 'Last Trade Date', ClassUnderTest.Fields.STRIKE.value,
+                   'Last Price', ClassUnderTest.Fields.BID.value, ClassUnderTest.Fields.ASK.value, 'Change', '% Change',
+                   ClassUnderTest.Fields.VOLUME.value, ClassUnderTest.Fields.OPEN_INTEREST.value,
+                   ClassUnderTest.Fields.IMPLIED_VOLATILITY.value]
 
         EMPTY_RESPONSE = None
         EXAMPLE_RESPONSE = None
@@ -84,42 +88,42 @@ class AnalyzerTest(unittest.TestCase):
         ]
 
         call_data = [
-            ['BAC230818C00019000', '2023-07-17 9:36AM EDT', 19.0, 10.50, 12.55, 12.65, 0.00, '-',' -', 1, '0.00%'],
-            ['BAC230818C00020000', '2023-07-17 10:43AM EDT', 20.0,9.54,11.60,11.65,0.00, '-', 1,61, '0.00%'],
-            ['BAC230818C00022000', '2023-07-20 9:37AM EDT', 22.0,9.80,9.55,9.70,0.00, '-', 2,86, '53.91%'],
-            ['BAC230818C00025000', '2023-07-19 10:22AM EDT', 25.0,6.50,6.60,6.70,0.00, '-', 5,5, '37.11%'],
-            ['BAC230818C00026000', '2023-07-18 9:55AM EDT', 26.0,4.65,5.65,5.75,0.00, '-',' -', 2, '36.91%'],
-            ['BAC230818C00027000', '2023-07-19 12:08PM EDT', 27.0,4.85,4.65,4.80,0.00, '-', 3, 12, '34.57%'],
-            ['BAC230818C00028000', '2023-07-20 3:39PM EDT', 28.0,3.90,3.65,3.80,0.00, '-', 5, 54, '28.42%'],
-            ['BAC230818C00029000', '2023-07-21 10:00AM EDT', 29.0,2.84,2.79,2.86,-0.09, '-3.07%', 1, 297, '24.90%'],
-            ['BAC230818C00030000', '2023-07-21 9:55AM EDT', 30.0,2.03,1.94,2.02,-0.07, '-3.33%', 30, 385, '23.15%'],
-            ['BAC230818C00031000', '2023-07-21 9:48AM EDT', 31.0,1.30,1.23,1.29,-0.12, '-8.45%', 35, 411, '21.58%'],
-            ['BAC230818C00032000', '2023-07-21 9:38AM EDT', 32.0,0.72,0.70,0.74,-0.11, '-13.25%', 10, 1252, '20.70%'],
-            ['BAC230818C00033000', '2023-07-21 9:45AM EDT', 33.0,0.37,0.35,0.38,-0.07, '-15.91%', 28, 509, '20.26%'],
-            ['BAC230818C00034000', '2023-07-21 9:48AM EDT', 34.0,0.17,0.16,0.19,-0.04, '-19.05%', 23, 117, '20.61%'],
-            ['BAC230818C00035000', '2023-07-20 3:49PM EDT', 35.0,0.10,0.07,0.10,0.00, '-', 13, 90, '21.58%'],
-            ['BAC230818C00036000', '2023-07-19 12:06PM EDT', 36.0,0.05,0.03,0.07,0.00, '-', 250, 287, '23.93%'],
-            ['BAC230818C00037000', '2023-07-20 9:30AM EDT', 37.0,0.05,0.00,0.11,0.00, '-', 2, 3, '30.66%'],
-            ['BAC230818C00038000', '2023-07-17 1:22PM EDT', 38.0,0.02,0.00,0.10,0.00, '-',' -', 1, '33.89%'],
-            ['BAC230818C00039000', '2023-07-13 3:05PM EDT', 39.0,0.02,0.00,0.10,0.00, '-',' -', 21, '37.50%'],
-            ['BAC230901C00019000', '2023-07-17 9:36AM EDT', 19.0,10.50,12.55,12.65,0.00, '-',' -', 1, '0.00%'],
-            ['BAC230901C00020000', '2023-07-17 10:43AM EDT', 20.0,9.54,11.60,11.65,0.00, '-', 1, 61, '0.00%'],
-            ['BAC230901C00022000', '2023-07-20 9:37AM EDT', 22.0,9.80,9.55,9.70,0.00, '-', 2, 86, '53.91%'],
-            ['BAC230901C00025000', '2023-07-19 10:22AM EDT', 25.0,6.50,6.60,6.70,0.00, '-', 5, 5, '37.11%'],
-            ['BAC230901C00026000', '2023-07-18 9:55AM EDT', 26.0,4.65,5.65,5.75,0.00, '-',' -', 2, '36.91%'],
-            ['BAC230901C00027000', '2023-07-19 12:08PM EDT', 27.0,4.85,4.65,4.80,0.00, '-', 3, 12, '34.57%'],
-            ['BAC230901C00028000', '2023-07-20 3:39PM EDT', 28.0,3.90,3.65,3.80,0.00, '-', 5, 54, '28.42%'],
-            ['BAC230901C00029000', '2023-07-21 10:00AM EDT', 29.0,2.84,2.79,2.86,-0.09, '-3.07%', 1, 297, '24.90%'],
-            ['BAC230901C00030000', '2023-07-21 9:55AM EDT', 30.0,2.03,1.94,2.02,-0.07, '-3.33%', 30, 385, '23.15%'],
-            ['BAC230901C00031000', '2023-07-21 9:48AM EDT', 31.0,1.30,1.23,1.29,-0.12, '-8.45%', 35, 411, '21.58%'],
-            ['BAC230901C00032000', '2023-07-21 9:38AM EDT', 32.0,0.72,0.70,0.74,-0.11, '-13.25%', 10, 1252, '20.70%'],
-            ['BAC230901C00033000', '2023-07-21 9:45AM EDT', 33.0,0.37,0.35,0.38,-0.07, '-15.91%', 28, 509, '20.26%'],
-            ['BAC230901C00034000', '2023-07-21 9:48AM EDT', 34.0,0.17,0.16,0.19,-0.04, '-19.05%', 23, 117, '20.61%'],
-            ['BAC230901C00035000', '2023-07-20 3:49PM EDT', 35.0,0.10,0.07,0.10,0.00, '-', 13, 90, '21.58%'],
-            ['BAC230901C00036000', '2023-07-19 12:06PM EDT', 36.0,0.05,0.03,0.07,0.00, '-', 250, 287, '23.93%'],
-            ['BAC230901C00037000', '2023-07-20 9:30AM EDT', 37.0,0.05,0.00,0.11,0.00, '-', 2, 3, '30.66%'],
-            ['BAC230901C00038000', '2023-07-17 1:22PM EDT', 38.0,0.02,0.00,0.10,0.00, '-',' -', 1, '33.89%'],
-            ['BAC230901C00039000', '2023-07-13 3:05PM EDT', 39.0,0.02,0.00,0.10,0.00, '-',' -', 21, '37.50%'],
+            ['BAC230818C00019000', '2023-07-17 9:36AM EDT', 19.0, 10.50, 12.55, 12.65, 0.00, '-', ' -', 1, '0.00%'],
+            ['BAC230818C00020000', '2023-07-17 10:43AM EDT', 20.0, 9.54, 11.60, 11.65, 0.00, '-', 1.61, '0.00%'],
+            ['BAC230818C00022000', '2023-07-20 9:37AM EDT', 22.0, 9.80, 9.55, 9.70, 0.00, '-', 2.86, '53.91%'],
+            ['BAC230818C00025000', '2023-07-19 10:22AM EDT', 25.0, 6.50, 6.60, 6.70, 0.00, '-', 5.5, '37.11%'],
+            ['BAC230818C00026000', '2023-07-18 9:55AM EDT', 26.0, 4.65, 5.65, 5.75, 0.00, '-', ' -', 2, '36.91%'],
+            ['BAC230818C00027000', '2023-07-19 12:08PM EDT', 27.0, 4.85, 4.65, 4.80, 0.00, '-', 3, 12, '34.57%'],
+            ['BAC230818C00028000', '2023-07-20 3:39PM EDT', 28.0, 3.90, 3.65, 3.80, 0.00, '-', 5, 54, '28.42%'],
+            ['BAC230818C00029000', '2023-07-21 10:00AM EDT', 29.0, 2.84, 2.79, 2.86, -0.09, '-3.07%', 1, 297, '24.90%'],
+            ['BAC230818C00030000', '2023-07-21 9:55AM EDT', 30.0, 2.03, 1.94, 2.02, -0.07, '-3.33%', 30, 385, '23.15%'],
+            ['BAC230818C00031000', '2023-07-21 9:48AM EDT', 31.0, 1.30, 1.23, 1.29, -0.12, '-8.45%', 35, 411, '21.58%'],
+            ['BAC230818C00032000', '2023-07-21 9:38AM EDT', 32.0, 0.72, 0.70, 0.74, -0.11, '-13.25%', 10, 1252, '20.70%'],
+            ['BAC230818C00033000', '2023-07-21 9:45AM EDT', 33.0, 0.37, 0.35, 0.38, -0.07, '-15.91%', 28, 509, '20.26%'],
+            ['BAC230818C00034000', '2023-07-21 9:48AM EDT', 34.0, 0.17, 0.16, 0.19, -0.04, '-19.05%', 23, 117, '20.61%'],
+            ['BAC230818C00035000', '2023-07-20 3:49PM EDT', 35.0, 0.10, 0.07, 0.10, 0.00, '-', 13, 90, '21.58%'],
+            ['BAC230818C00036000', '2023-07-19 12:06PM EDT', 36.0, 0.05, 0.03, 0.07, 0.00, '-', 250, 287, '23.93%'],
+            ['BAC230818C00037000', '2023-07-20 9:30AM EDT', 37.0, 0.05, 0.00, 0.11, 0.00, '-', 2, 3, '30.66%'],
+            ['BAC230818C00038000', '2023-07-17 1:22PM EDT', 38.0, 0.02, 0.00, 0.10, 0.00, '-', ' -', 1, '33.89%'],
+            ['BAC230818C00039000', '2023-07-13 3:05PM EDT', 39.0, 0.02, 0.00, 0.10, 0.00, '-', ' -', 21, '37.50%'],
+            ['BAC230901C00019000', '2023-07-17 9:36AM EDT', 19.0, 10.50, 12.55, 12.65, 0.00, '-', ' -', 1, '0.00%'],
+            ['BAC230901C00020000', '2023-07-17 10:43AM EDT', 20.0, 9.54, 11.60, 11.65, 0.00, '-', 1, 61, '0.00%'],
+            ['BAC230901C00022000', '2023-07-20 9:37AM EDT', 22.0, 9.80, 9.55, 9.70, 0.00, '-', 2, 86, '53.91%'],
+            ['BAC230901C00025000', '2023-07-19 10:22AM EDT', 25.0, 6.50, 6.60, 6.70, 0.00, '-', 5, 5, '37.11%'],
+            ['BAC230901C00026000', '2023-07-18 9:55AM EDT', 26.0, 4.65, 5.65, 5.75, 0.00, '-', ' -', 2, '36.91%'],
+            ['BAC230901C00027000', '2023-07-19 12:08PM EDT', 27.0, 4.85, 4.65, 4.80, 0.00, '-', 3, 12, '34.57%'],
+            ['BAC230901C00028000', '2023-07-20 3:39PM EDT', 28.0, 3.90, 3.65, 3.80, 0.00, '-', 5, 54, '28.42%'],
+            ['BAC230901C00029000', '2023-07-21 10:00AM EDT', 29.0, 2.84, 2.79, 2.86, -0.09, '-3.07%', 1, 297, '24.90%'],
+            ['BAC230901C00030000', '2023-07-21 9:55AM EDT', 30.0, 2.03, 1.94, 2.02, -0.07, '-3.33%', 30, 385, '23.15%'],
+            ['BAC230901C00031000', '2023-07-21 9:48AM EDT', 31.0, 1.30, 1.23, 1.29, -0.12, '-8.45%', 35, 411, '21.58%'],
+            ['BAC230901C00032000', '2023-07-21 9:38AM EDT', 32.0, 0.72, 0.70, 0.74, -0.11, '-13.25%', 10, 1252, '20.70%'],
+            ['BAC230901C00033000', '2023-07-21 9:45AM EDT', 33.0, 0.37, 0.35, 0.38, -0.07, '-15.91%', 28, 509, '20.26%'],
+            ['BAC230901C00034000', '2023-07-21 9:48AM EDT', 34.0, 0.17, 0.16, 0.19, -0.04, '-19.05%', 23, 117, '20.61%'],
+            ['BAC230901C00035000', '2023-07-20 3:49PM EDT', 35.0, 0.10, 0.07, 0.10, 0.00, '-', 13, 90, '21.58%'],
+            ['BAC230901C00036000', '2023-07-19 12:06PM EDT', 36.0, 0.05, 0.03, 0.07, 0.00, '-', 250, 287, '23.93%'],
+            ['BAC230901C00037000', '2023-07-20 9:30AM EDT', 37.0, 0.05, 0.00, 0.11, 0.00, '-', 2, 3, '30.66%'],
+            ['BAC230901C00038000', '2023-07-17 1:22PM EDT', 38.0, 0.02, 0.00, 0.10, 0.00, '-', ' -', 1, '33.89%'],
+            ['BAC230901C00039000', '2023-07-13 3:05PM EDT', 39.0, 0.02, 0.00, 0.10, 0.00, '-', ' -', 21, '37.50%'],
         ]
 
         self.MockData.EXAMPLE_RESPONSE = {}
@@ -130,7 +134,7 @@ class AnalyzerTest(unittest.TestCase):
 
         expected_value = datetime.fromisoformat('2023-08-18')
 
-        actual_value = ClassUnderTest.exp_date_from_contract_name(self.TestData.CONTRACT_NAME, self.TestData.SYMBOL)
+        actual_value = ClassUnderTest.extract_date(self.TestData.CONTRACT_NAME, self.TestData.SYMBOL)
 
         self.assertEqual(expected_value, actual_value, 'unexpected expiration date')
 
@@ -139,11 +143,10 @@ class AnalyzerTest(unittest.TestCase):
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
         mocked_data = self.MockData.EMPTY_RESPONSE
 
-        with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value = mocked_data) as mocked_method:
+        with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value=mocked_data) as mocked_method:
 
-            actual_value = ClassUnderTest.get_info(self.TestData.SYMBOL, self.TestData.MODE,
-                self.TestData.EXP_DATE, self.TestData.PRICE,
-                self.TestData.FILTER, self.TestData.CURRENT_DATE)
+            actual_value = ClassUnderTest.get_info(self.TestData.SYMBOL, self.TestData.MODE, self.TestData.EXP_DATE,
+                                                   self.TestData.PRICE, self.TestData.FILTER, self.TestData.CURRENT_DATE)
 
             # ensure mock was called (instead of real yahoo_fin module implementation)
             mocked_method.assert_called_once()
@@ -157,10 +160,10 @@ class AnalyzerTest(unittest.TestCase):
         expected_value = self.TestData.EXAMPLE_RESULT
         mocked_data = self.MockData.EXAMPLE_RESPONSE
 
-        with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value = mocked_data) as mocked_method:
+        with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value=mocked_data) as mocked_method:
 
-            actual_value = ClassUnderTest.get_info(self.TestData.SYMBOL, self.TestData.MODE,
-                self.TestData.EXP_DATE, self.TestData.PRICE, self.TestData.FILTER, self.TestData.CURRENT_DATE)
+            actual_value = ClassUnderTest.get_info(self.TestData.SYMBOL, self.TestData.MODE, self.TestData.EXP_DATE,
+                                                   self.TestData.PRICE, self.TestData.FILTER, self.TestData.CURRENT_DATE)
 
             # ensure mock was called (instead of real yahoo_fin module implementation)
             mocked_method.assert_called_once()
@@ -177,17 +180,17 @@ class AnalyzerTest(unittest.TestCase):
         mocked_data = 40
         mocked_data_2 = self.MockData.EMPTY_RESPONSE
 
-        with patch.object(YahooFinanceWrapper, 'get_live_price', return_value = mocked_data) as mocked_get_live_price:
-            with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value = mocked_data_2) as mocked_get_options_chain:
+        with patch.object(YahooFinanceWrapper, 'get_live_price', return_value=mocked_data) as get_live_price:
+            with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value=mocked_data_2) as get_options_chain:
 
-                actual_value = ClassUnderTest.get_options(symbols = [self.TestData.SYMBOL])
+                actual_value = ClassUnderTest.get_options(symbols=[self.TestData.SYMBOL])
 
                 # ensure mock for get_live_price() was called
-                mocked_get_live_price.assert_called_once()
-                mocked_get_live_price.assert_called_with(self.TestData.SYMBOL)
+                get_live_price.assert_called_once()
+                get_live_price.assert_called_with(self.TestData.SYMBOL)
 
                 # ensure mock for get_options_chain() was NOT called
-                mocked_get_options_chain.assert_not_called()
+                get_options_chain.assert_not_called()
 
                 # check results
                 self.assertEqual(expected_value, actual_value, 'unexpected return data')
@@ -196,20 +199,22 @@ class AnalyzerTest(unittest.TestCase):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
         mocked_data = self.MockData.EMPTY_RESPONSE
+        symbols = [self.TestData.SYMBOL]
 
-        with patch.object(YahooFinanceWrapper, 'get_live_price', return_value = mocked_data):
-            with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value = mocked_data) as mocked_method:
+        with patch.object(YahooFinanceWrapper, 'get_live_price', return_value=mocked_data):
+            with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value=mocked_data) as get_options_chain:
 
-                actual_value = ClassUnderTest.get_options(symbols = [self.TestData.SYMBOL], year = 2023, start_week = 32, end_week = 36)
+                actual_value = ClassUnderTest.get_options(symbols=symbols, year=2023, start_week=32, end_week=36)
 
                 # ensure mock was called with corresponding expiration dates
-                mocked_method.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-11"))
-                mocked_method.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-18"))
-                mocked_method.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-25"))
-                mocked_method.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-09-01"))
+                get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-11"))
+                get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-18"))
+                get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-25"))
+                get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-09-01"))
 
                 # check results
                 self.assertEqual(expected_value, actual_value, 'unexpected return data')
+
 
 if __name__ == '__main__':
     unittest.main()
