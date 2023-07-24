@@ -53,8 +53,12 @@ jobs:
       with:
         files: |
           out/test/junit/test-results.xml
-    - name: Publish code coverage
-      uses: orgoro/coverage@v3.1
+    - name: Upload coverage reports to codecov.io
+      uses: codecov/codecov-action@v3
       with:
-          coverageFile: out/test/junit/coverage.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
+        files: out/test/junit/coverage.xml
+        # flags: unittests # optional
+        # name: codecov-umbrella # optional
+        # fail_ci_if_error: true # optional (default = false)
+        # verbose: true # optional (default = false)
