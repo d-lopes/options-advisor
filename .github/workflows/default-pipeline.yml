@@ -46,7 +46,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest --junitxml=out/test/junit/test-results.xml --cov=src/test --cov-report=xml:out/test/junit/coverage.xml
+        pytest --junitxml=out/test/junit/test-results.xml --cov=src --cov-report=xml:out/test/junit/coverage.xml
     - name: Publish test results
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
