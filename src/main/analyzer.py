@@ -36,7 +36,7 @@ class OptionsAnalyzer:
 
         @staticmethod
         def getDefaults():
-            return OptionsAnalyzer.Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=40)
+            return OptionsAnalyzer.Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=100000)
 
     class Fields(Enum):
         TICKER = 'Ticker'
@@ -123,7 +123,7 @@ class OptionsAnalyzer:
         elif (type == OptionsAnalyzer.Types.CALL):
             options = pd.merge(call_options, put_options, how="left", on=merge_columns, suffixes=("", "_merged"))
         else:
-            OptionsAnalyzer.logger.error('unknown type %s', type)
+            raise ValueError(Exception('invalid type "' + type + '"'))
 
         # cosmetic changes: name columns properly
         options = options.rename(columns={'Last Price': OptionsAnalyzer.Fields.PREMIUM.value})

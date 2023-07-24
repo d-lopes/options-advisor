@@ -1,3 +1,5 @@
 # codecov.io configuration
+
 ignore:
   - "src/test"  # ignore 'test' folder
+  - "src/main/run.py"  # ignore run.py script since it cannot be tested
