@@ -1,0 +1,3 @@
+# codecov.io configuration
+ignore:
+  - "src/test"  # ignore 'test' folder
