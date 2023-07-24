@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/github/d-lopes/options-tracker-input/branch/main/graph/badge.svg?token=TSZDGJ2Q8G)](https://codecov.io/github/d-lopes/options-tracker-input)
+
 # options-tracker-input
 
 Generator for Input of the Options Tracker 2.0 GoogleSheet
