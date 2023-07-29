@@ -3,5 +3,3 @@ dlint==0.14.1
 flake8-bugbear==23.7.10
 flake8-simplify==0.20.0
 mccabe==0.7.0
-pytest==7.4.0
-pytest-cov==4.1.0
