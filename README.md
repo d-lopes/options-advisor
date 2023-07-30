@@ -1,6 +1,6 @@
 # Options Advisor
 
-[![codecov](https://codecov.io/gh/d-lopes/options-advisor/branch/main/graph/badge.svg?token=TSZDGJ2Q8G)](https://codecov.io/gh/d-lopes/options-advisor) [![Known Vulnerabilities](https://snyk.io/test/github/d-lopes/options-tracker-input/badge.svg)](<https://snyk.io/test/github/d-lopes/options-tracker-input>)
+[![Coverage Status](https://coveralls.io/repos/github/d-lopes/options-advisor/badge.svg?branch=main)](https://coveralls.io/github/d-lopes/options-advisor?branch=main) [![Known Vulnerabilities](https://snyk.io/test/github/d-lopes/options-advisor/badge.svg)](<https://snyk.io/test/github/d-lopes/options-advisor>) [![License](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://mozilla.org/MPL/2.0)
 
 Python Repo for tasks concerning management and selection of stock options @ NYSE
 
