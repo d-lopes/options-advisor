@@ -60,7 +60,7 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v3
-        
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v3
         with:
@@ -88,11 +88,16 @@ jobs:
           files: |
             out/test/junit/test-results.xml
 
-      - name: Upload coverage reports to codecov.io
-        uses: codecov/codecov-action@v3
+      - name: Upload coverage reports to coveralls.io
+        uses: coverallsapp/github-action@v2
         with:
-          token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
-          files: out/test/junit/coverage.xml
+          file: out/test/junit/coverage.xml
+
+      #- name: Upload coverage reports to codecov.io
+      #  uses: codecov/codecov-action@v3
+      #  with:
+      #    token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
+      #    files: out/test/junit/coverage.xml
           # flags: unittests # optional
           # name: codecov-umbrella # optional
           # fail_ci_if_error: true # optional (default = false)
