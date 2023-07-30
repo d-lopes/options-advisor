@@ -5,7 +5,7 @@ from datetime import date, datetime
 import unittest
 from unittest.mock import patch
 
-from src.analyzer import YahooFinanceWrapper
+from src.analyzer import YahooFinanceWrapper as yfw
 
 from src.analyzer import OptionsAnalyzer as ClassUnderTest
 
@@ -164,7 +164,7 @@ class AnalyzerTest(unittest.TestCase):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
 
-        with patch.object(YahooFinanceWrapper, 'get_options_chain') as mocked_method:
+        with patch.object(yfw, 'get_options_chain') as mocked_method:
 
             mocked_method.side_effect = ValueError(Exception('symbol does not exist'))
 
@@ -183,7 +183,7 @@ class AnalyzerTest(unittest.TestCase):
         expected_value = 'invalid type "incorrect"'
         mocked_data = self.MockData.EXAMPLE_RESPONSE
 
-        with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value=mocked_data) as mocked_method:
+        with patch.object(yfw, 'get_options_chain', return_value=mocked_data) as mocked_method:
             with self.assertRaises(ValueError) as context:
 
                 ClassUnderTest.get_info(self.TestData.SYMBOL, 'incorrect', self.TestData.EXP_DATE,
@@ -201,7 +201,7 @@ class AnalyzerTest(unittest.TestCase):
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
         mocked_data = self.MockData.EMPTY_RESPONSE
 
-        with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value=mocked_data) as mocked_method:
+        with patch.object(yfw, 'get_options_chain', return_value=mocked_data) as mocked_method:
 
             actual_value = ClassUnderTest.get_info(self.TestData.SYMBOL, self.TestData.MODE, self.TestData.EXP_DATE,
                                                    self.TestData.PRICE, self.TestData.FILTER, self.TestData.ORDER_DATE)
@@ -218,7 +218,7 @@ class AnalyzerTest(unittest.TestCase):
         expected_value = self.TestData.EXAMPLE_RESULT
         mocked_data = self.MockData.EXAMPLE_RESPONSE
 
-        with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value=mocked_data) as mocked_method:
+        with patch.object(yfw, 'get_options_chain', return_value=mocked_data) as mocked_method:
 
             actual_value = ClassUnderTest.get_info(self.TestData.SYMBOL, self.TestData.MODE, self.TestData.EXP_DATE,
                                                    self.TestData.PRICE, self.TestData.FILTER, self.TestData.ORDER_DATE)
@@ -244,7 +244,7 @@ class AnalyzerTest(unittest.TestCase):
 
         mocked_data = self.MockData.EXAMPLE_RESPONSE
 
-        with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value=mocked_data) as mocked_method:
+        with patch.object(yfw, 'get_options_chain', return_value=mocked_data) as mocked_method:
 
             actual_value = ClassUnderTest.get_info(self.TestData.SYMBOL, ClassUnderTest.Types.CALL, self.TestData.EXP_DATE,
                                                    self.TestData.PRICE, self.TestData.FILTER, self.TestData.ORDER_DATE)
@@ -263,7 +263,7 @@ class AnalyzerTest(unittest.TestCase):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
 
-        with patch.object(YahooFinanceWrapper, 'get_live_price') as mocked_method:
+        with patch.object(yfw, 'get_live_price') as mocked_method:
 
             mocked_method.side_effect = AssertionError(Exception('symbol does not exist'))
 
@@ -280,47 +280,48 @@ class AnalyzerTest(unittest.TestCase):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
 
-        mocked_data = 48.1
-        mocked_data_2 = self.MockData.EXAMPLE_RESPONSE
+        mock1 = patch.object(yfw, 'get_live_price', return_value=48.1)
+        mock2 = patch.object(yfw, 'get_options_chain', return_value=self.MockData.EXAMPLE_RESPONSE)
 
         test_filter = ClassUnderTest.Filter.getDefaults()
         test_filter.max_strike = 40
 
-        with patch.object(YahooFinanceWrapper, 'get_live_price', return_value=mocked_data) as get_live_price:
-            with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value=mocked_data_2) as get_options_chain:
+        with mock1 as get_live_price, mock2 as get_options_chain:
 
-                actual_value = ClassUnderTest.get_options(symbols=[self.TestData.SYMBOL], year=2023,
-                                                          start_week=33, end_week=34, filter=test_filter)
+            actual_value = ClassUnderTest.get_options(symbols=[self.TestData.SYMBOL], year=2023,
+                                                      start_week=33, end_week=34, filter=test_filter)
 
-                # ensure mock for get_live_price() was called
-                get_live_price.assert_called_once()
-                get_live_price.assert_called_with(self.TestData.SYMBOL)
+            # ensure mock for get_live_price() was called
+            get_live_price.assert_called_once()
+            get_live_price.assert_called_with(self.TestData.SYMBOL)
 
-                # ensure mock for get_options_chain() was NOT called
-                get_options_chain.assert_not_called()
+            # ensure mock for get_options_chain() was NOT called
+            get_options_chain.assert_not_called()
 
-                # check results
-                self.assertEqual(expected_value, actual_value, 'unexpected return data')
+            # check results
+            self.assertEqual(expected_value, actual_value, 'unexpected return data')
 
     def test_get_options_computes_correct_expiration_dates(self):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
-        mocked_data = self.MockData.EMPTY_RESPONSE
+
+        mock1 = patch.object(yfw, 'get_live_price', return_value=self.MockData.EMPTY_RESPONSE)
+        mock2 = patch.object(yfw, 'get_options_chain', return_value=self.MockData.EMPTY_RESPONSE)
+
         symbols = [self.TestData.SYMBOL]
 
-        with patch.object(YahooFinanceWrapper, 'get_live_price', return_value=mocked_data):
-            with patch.object(YahooFinanceWrapper, 'get_options_chain', return_value=mocked_data) as get_options_chain:
+        with mock1, mock2 as get_options_chain:
 
-                actual_value = ClassUnderTest.get_options(symbols=symbols, year=2023, start_week=32, end_week=36)
+            actual_value = ClassUnderTest.get_options(symbols=symbols, year=2023, start_week=32, end_week=36)
 
-                # ensure mock was called with corresponding expiration dates
-                get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-11"))
-                get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-18"))
-                get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-25"))
-                get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-09-01"))
+            # ensure mock was called with corresponding expiration dates
+            get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-11"))
+            get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-18"))
+            get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-08-25"))
+            get_options_chain.assert_any_call(self.TestData.SYMBOL, date.fromisoformat("2023-09-01"))
 
-                # check results
-                self.assertEqual(expected_value, actual_value, 'unexpected return data')
+            # check results
+            self.assertEqual(expected_value, actual_value, 'unexpected return data')
 
 
 if __name__ == '__main__':

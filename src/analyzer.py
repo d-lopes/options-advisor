@@ -1,6 +1,7 @@
 from datetime import datetime, date, timedelta
 from enum import Enum
 import logging
+import types
 import pandas as pd
 
 from yahoo_fin import stock_info as stocks, options as opts
@@ -12,7 +13,7 @@ from src.utils.highlighter import Highlighter
 class YahooFinanceWrapper:
 
     @staticmethod
-    def get_options_chain(ticker, date=None, raw=True, headers={'User-agent': 'Mozilla/5.0'}):
+    def get_options_chain(ticker, date=None, raw=True, headers=types.MappingProxyType({'User-agent': 'Mozilla/5.0'})):
         return opts.get_options_chain(ticker=ticker, date=date, raw=raw, headers=headers)
 
     @staticmethod
@@ -94,7 +95,7 @@ class OptionsAnalyzer:
 
     @staticmethod
     def get_info(ticker: str, type: Types = Types.PUT, expiration_date: date = None,
-                 price: float = 0, filter: Filter = None, order_date: date = date.today()):
+                 price: float = 0, filter: Filter = None, order_date: date = None):
         # get options
         options = pd.DataFrame()
         try:
@@ -175,7 +176,7 @@ class OptionsAnalyzer:
         return relevant_options[OptionsAnalyzer.DATA_COLUMNS]
 
     @staticmethod
-    def get_options(symbols=[], mode: Types = Types.PUT, year: int = 2023,
+    def get_options(symbols=('BAC',), mode: Types = Types.PUT, year: int = 2023,
                     start_week: int = 1, end_week: int = 1, filter: Filter = None):
 
         data = pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
@@ -183,13 +184,19 @@ class OptionsAnalyzer:
         for symbol in symbols:
             try:
                 price = YahooFinanceWrapper.get_live_price(symbol)
-                # skip processing of underlying when live price + 20% is above acceptable strike
+
                 if (filter is not None):
-                    if (price > filter.max_strike * 1.2):
-                        OptionsAnalyzer.logger.warning('price of underlying %s is too high. Skipping this symbol!', symbol)
-                        continue
+                    priceToHigh = price > filter.max_strike * 1.2
+                else:
+                    priceToHigh = False
+
+                # skip processing of underlying when live price + 20% is above acceptable strike
+                if (priceToHigh):
+                    OptionsAnalyzer.logger.warning('price of underlying %s is too high. Skipping this symbol!', symbol)
+                    continue
+
             except AssertionError:
-                OptionsAnalyzer.logger.error('unable to retrieve data for symbol %s. Skipping this symbol!', symbol)
+                OptionsAnalyzer.logger.error('unable to retrieve price for symbol %s.', symbol)
                 continue
 
             for week in range(start_week, end_week):
