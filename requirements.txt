@@ -6,3 +6,4 @@ requests_html==0.10.0
 yahoo_fin==0.8.9.1
 pytest==7.4.0
 coverage==7.2.7
+pytest-cov==4.1.0
