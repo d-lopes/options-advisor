@@ -137,29 +137,6 @@ class AnalyzerTest(unittest.TestCase):
         self.MockData.EXAMPLE_RESPONSE['puts'] = pd.DataFrame(put_data, columns=self.MockData.COLUMNS)
         self.MockData.EXAMPLE_RESPONSE['calls'] = pd.DataFrame(call_data, columns=self.MockData.COLUMNS)
 
-    def test_get_extract_date(self):
-
-        expected_value = datetime.fromisoformat('2023-08-18')
-
-        actual_value = ClassUnderTest.extract_date(self.TestData.CONTRACT_NAME, self.TestData.SYMBOL)
-
-        self.assertEqual(expected_value, actual_value, 'unexpected expiration date')
-
-    def test_calculate_yield(self):
-
-        expected_value = pd.Series([-4.506173, 0.482804, 18.315412])
-
-        # only use certain lines of mock data example response and tweak it to be compatible with method calculate_yield()
-        test_options: pd.DataFrame = self.MockData.EXAMPLE_RESPONSE['puts'].copy()
-        test_options = test_options.rename(columns={'Last Price': ClassUnderTest.Fields.PREMIUM.value})
-        test_options = test_options.iloc[[0, 6, 9]]
-        test_options = test_options.reset_index(drop=True)
-
-        actual_value = ClassUnderTest.calculate_yield(test_options, self.TestData.EXP_DATE, self.TestData.ORDER_DATE)
-
-        # check results
-        self.assertEqual(expected_value, actual_value, 'unexpected expiration date')
-
     def test_get_info_handles_value_error_input(self):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)

@@ -1,24 +1,12 @@
-from datetime import datetime, date, timedelta
+from datetime import date
 from enum import Enum
 import logging
-import types
 import pandas as pd
 
-from yahoo_fin import stock_info as stocks, options as opts
-
+from src.utils.yahoo_fin_wrapper import YahooFinanceWrapper
 from src.utils.highlighter import Highlighter
-
-
-# introduced to being able to mock out the actual calls to Yahoo Finance (done by yahoo_fin module)
-class YahooFinanceWrapper:
-
-    @staticmethod
-    def get_options_chain(ticker, date=None, raw=True, headers=types.MappingProxyType({'User-agent': 'Mozilla/5.0'})):
-        return opts.get_options_chain(ticker=ticker, date=date, raw=raw, headers=headers)
-
-    @staticmethod
-    def get_live_price(symbol):
-        return stocks.get_live_price(symbol)
+from src.utils.exp_date_extractor import ExpirationDateExtractor
+from src.utils.dyn_value_calc import DynamicValueCalculator
 
 
 class OptionsAnalyzer:
@@ -72,32 +60,9 @@ class OptionsAnalyzer:
     logger = logging.getLogger('optionsAnalyzer')
 
     @staticmethod
-    def extract_date(name: str, prefix: str):
-        size = len(name)
-        ticker_date_portion = name[:size-9]
-        date_str = '20' + ticker_date_portion.replace(prefix, '', 1)
-        return datetime.strptime(date_str, '%Y%m%d')
-
-    @staticmethod
-    def calculate_yield(options: pd.DataFrame, expiration_date: date, order_date: date):
-
-        strike_col_name = OptionsAnalyzer.Fields.STRIKE.value
-
-        transaction_cost = 2 * 3 / 100  # assumption 3 US$ per transaction (buy and sell of 100 shares)
-        days_per_year = 365
-        holding_period: timedelta = expiration_date - order_date
-
-        # yield = [ (premium - transaction costs) / strike ] / holding_period * 365 * 100
-        ret_val = (options[OptionsAnalyzer.Fields.PREMIUM.value] - transaction_cost) / options[strike_col_name]
-        ret_val = ret_val / holding_period.days * days_per_year * 100
-
-        return ret_val
-
-    @staticmethod
     def get_info(ticker: str, type: Types = Types.PUT, expiration_date: date = None,
                  price: float = 0, filter: Filter = None, order_date: date = None):
         # get options
-        options = pd.DataFrame()
         try:
             all_options = YahooFinanceWrapper.get_options_chain(ticker, expiration_date)
         except ValueError as err:
@@ -114,39 +79,16 @@ class OptionsAnalyzer:
         # extract expiration dates
         col_name1 = OptionsAnalyzer.Fields.CONTRACT_NAME.value
         col_name2 = OptionsAnalyzer.Fields.EXPIRATION_DATE.value
-        put_options[col_name2] = put_options[col_name1].transform(lambda name: OptionsAnalyzer.extract_date(name, ticker))
-        call_options[col_name2] = call_options[col_name1].transform(lambda name: OptionsAnalyzer.extract_date(name, ticker))
+        ede = ExpirationDateExtractor(ordinal=10, ticker=ticker, source=col_name1, target=col_name2)
+        ede.process(put_options)
+        ede.process(call_options)
 
         # link PUTs and CALLs based on their strike price and expiration date
-        merge_columns = [OptionsAnalyzer.Fields.STRIKE.value, OptionsAnalyzer.Fields.EXPIRATION_DATE.value]
-        if (type == OptionsAnalyzer.Types.PUT):
-            options = pd.merge(put_options, call_options, how="left", on=merge_columns, suffixes=("", "_merged"))
-        elif (type == OptionsAnalyzer.Types.CALL):
-            options = pd.merge(call_options, put_options, how="left", on=merge_columns, suffixes=("", "_merged"))
-        else:
-            raise ValueError(Exception('invalid type "' + type + '"'))
-
-        # cosmetic changes: name columns properly
-        options = options.rename(columns={'Last Price': OptionsAnalyzer.Fields.PREMIUM.value})
-        open_interest_orig_column_name = OptionsAnalyzer.Fields.OPEN_INTEREST.value + '_merged'
-        if (type == OptionsAnalyzer.Types.PUT):
-            options[OptionsAnalyzer.Fields.PUTS_CNT.value] = options[OptionsAnalyzer.Fields.OPEN_INTEREST.value]
-            options = options.rename(columns={open_interest_orig_column_name: OptionsAnalyzer.Fields.CALLS_CNT.value})
-        elif (type == OptionsAnalyzer.Types.CALL):
-            options[OptionsAnalyzer.Fields.CALLS_CNT.value] = options[OptionsAnalyzer.Fields.OPEN_INTEREST.value]
-            options = options.rename(columns={open_interest_orig_column_name: OptionsAnalyzer.Fields.PUTS_CNT.value})
-
-        # get rid of invalid numeric values
-        options = options[pd.to_numeric(options[OptionsAnalyzer.Fields.PUTS_CNT.value], errors='coerce').notnull()]
-        options = options[pd.to_numeric(options[OptionsAnalyzer.Fields.CALLS_CNT.value], errors='coerce').notnull()]
-
-        # transform data types in columns
-        options = options.astype({OptionsAnalyzer.Fields.PUTS_CNT.value: 'int', OptionsAnalyzer.Fields.CALLS_CNT.value: 'int'})
+        options = OptionsAnalyzer.link_puts_and_calls(type, put_options, call_options)
 
         # calculate dynamic values
-        options[OptionsAnalyzer.Fields.DIFFERENCE.value] = price - options[OptionsAnalyzer.Fields.STRIKE.value]
-        options[OptionsAnalyzer.Fields.DISTANCE.value] = options[OptionsAnalyzer.Fields.DIFFERENCE.value] / price * 100
-        options[OptionsAnalyzer.Fields.YIELD.value] = OptionsAnalyzer.calculate_yield(options, expiration_date, order_date)
+        dvc = DynamicValueCalculator(ordinal=20, expiration_date=expiration_date, order_date=order_date, price=price)
+        dvc.process(options)
 
         # filter for relevant data
         relevant_options = options.loc[
@@ -176,6 +118,36 @@ class OptionsAnalyzer:
         return relevant_options[OptionsAnalyzer.DATA_COLUMNS]
 
     @staticmethod
+    def link_puts_and_calls(type, put_options, call_options):
+        options = pd.DataFrame()
+
+        merge_columns = [OptionsAnalyzer.Fields.STRIKE.value, OptionsAnalyzer.Fields.EXPIRATION_DATE.value]
+        if (type == OptionsAnalyzer.Types.PUT):
+            options = pd.merge(put_options, call_options, how="left", on=merge_columns, suffixes=("", "_merged"))
+        elif (type == OptionsAnalyzer.Types.CALL):
+            options = pd.merge(call_options, put_options, how="left", on=merge_columns, suffixes=("", "_merged"))
+        else:
+            raise ValueError(Exception('invalid type "' + type + '"'))
+
+        # cosmetic changes: name columns properly
+        options = options.rename(columns={'Last Price': OptionsAnalyzer.Fields.PREMIUM.value})
+        open_interest_orig_column_name = OptionsAnalyzer.Fields.OPEN_INTEREST.value + '_merged'
+        if (type == OptionsAnalyzer.Types.PUT):
+            options[OptionsAnalyzer.Fields.PUTS_CNT.value] = options[OptionsAnalyzer.Fields.OPEN_INTEREST.value]
+            options = options.rename(columns={open_interest_orig_column_name: OptionsAnalyzer.Fields.CALLS_CNT.value})
+        elif (type == OptionsAnalyzer.Types.CALL):
+            options[OptionsAnalyzer.Fields.CALLS_CNT.value] = options[OptionsAnalyzer.Fields.OPEN_INTEREST.value]
+            options = options.rename(columns={open_interest_orig_column_name: OptionsAnalyzer.Fields.PUTS_CNT.value})
+
+        # get rid of invalid numeric values
+        options = options[pd.to_numeric(options[OptionsAnalyzer.Fields.PUTS_CNT.value], errors='coerce').notnull()]
+        options = options[pd.to_numeric(options[OptionsAnalyzer.Fields.CALLS_CNT.value], errors='coerce').notnull()]
+
+        # transform data types in columns
+        options = options.astype({OptionsAnalyzer.Fields.PUTS_CNT.value: 'int', OptionsAnalyzer.Fields.CALLS_CNT.value: 'int'})
+        return options
+
+    @staticmethod
     def get_options(symbols=('BAC',), mode: Types = Types.PUT, year: int = 2023,
                     start_week: int = 1, end_week: int = 1, filter: Filter = None):
 
@@ -185,13 +157,14 @@ class OptionsAnalyzer:
             try:
                 price = YahooFinanceWrapper.get_live_price(symbol)
 
+                # if filter is given, calculate threshold for price too high (when strike + 20%)
                 if (filter is not None):
-                    priceToHigh = price > filter.max_strike * 1.2
+                    priceTooHigh = price > filter.max_strike * 1.2
                 else:
-                    priceToHigh = False
+                    priceTooHigh = False
 
-                # skip processing of underlying when live price + 20% is above acceptable strike
-                if (priceToHigh):
+                # skip processing of underlying when live price is above acceptable value
+                if (priceTooHigh):
                     OptionsAnalyzer.logger.warning('price of underlying %s is too high. Skipping this symbol!', symbol)
                     continue
 
@@ -199,17 +172,23 @@ class OptionsAnalyzer:
                 OptionsAnalyzer.logger.error('unable to retrieve price for symbol %s.', symbol)
                 continue
 
-            for week in range(start_week, end_week):
-                expiration_date = date.fromisocalendar(year, week, 5)
-                order_date = date.today()
-                OptionsAnalyzer.logger.info("get data for %s with expiration date %d", symbol, expiration_date)
+            data = OptionsAnalyzer._get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price)
 
-                try:
-                    more_data = OptionsAnalyzer.get_info(symbol, mode, expiration_date, price, filter, order_date)
-                except KeyError:
-                    OptionsAnalyzer.logger.error('unable to analyze data for symbol %s. Continuing with next symbol!', symbol)
-                    continue
-                data = pd.concat([data, more_data], ignore_index=True)
+        return data
+
+    @staticmethod
+    def _get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price):
+        for week in range(start_week, end_week):
+            expiration_date = date.fromisocalendar(year, week, 5)
+            order_date = date.today()
+            OptionsAnalyzer.logger.info("get data for %s with expiration date %d", symbol, expiration_date)
+
+            try:
+                more_data = OptionsAnalyzer.get_info(symbol, mode, expiration_date, price, filter, order_date)
+            except KeyError:
+                OptionsAnalyzer.logger.error('unable to analyze data for symbol %s. Continuing with next symbol!', symbol)
+                continue
+            data = pd.concat([data, more_data], ignore_index=True)
 
         # reindex for clean data frame
         data = data.reset_index(drop=True)
