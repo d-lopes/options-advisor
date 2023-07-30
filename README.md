@@ -1,8 +1,6 @@
 # Options Advisor
 
-[![codecov](https://codecov.io/github/d-lopes/options-tracker-input/branch/main/graph/badge.svg?token=TSZDGJ2Q8G)](https://codecov.io/github/d-lopes/options-tracker-input)
-
-[![Known Vulnerabilities](https://snyk.io/test/github/d-lopes/options-tracker-input/badge.svg)](<https://snyk.io/test/github/d-lopes/options-tracker-input>)
+[![codecov](https://codecov.io/gh/d-lopes/options-advisor/branch/main/graph/badge.svg?token=TSZDGJ2Q8G)](https://codecov.io/gh/d-lopes/options-advisor) [![Known Vulnerabilities](https://snyk.io/test/github/d-lopes/options-tracker-input/badge.svg)](<https://snyk.io/test/github/d-lopes/options-tracker-input>)
 
 Python Repo for tasks concerning management and selection of stock options @ NYSE
 
