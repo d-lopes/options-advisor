@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 
-from src.main.analyzer import OptionsAnalyzer as Analyzer
+from src.analyzer import OptionsAnalyzer as Analyzer
 
 # only NYSE listed stocks are possible
 # BEPC and LPX caused issues. thus they were removed from the list of symbols below

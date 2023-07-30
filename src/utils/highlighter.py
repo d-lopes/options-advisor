@@ -1,6 +1,6 @@
 from enum import Enum
 
-import src.main.analyzer as root
+import src.analyzer as root
 
 
 class Highlighter:

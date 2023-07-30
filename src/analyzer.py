@@ -5,7 +5,7 @@ import pandas as pd
 
 from yahoo_fin import stock_info as stocks, options as opts
 
-from src.main.utils.highlighter import Highlighter
+from src.utils.highlighter import Highlighter
 
 
 # introduced to being able to mock out the actual calls to Yahoo Finance (done by yahoo_fin module)

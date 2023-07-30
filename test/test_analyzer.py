@@ -5,9 +5,9 @@ from datetime import date, datetime
 import unittest
 from unittest.mock import patch
 
-from src.main.analyzer import YahooFinanceWrapper
+from src.analyzer import YahooFinanceWrapper
 
-from src.main.analyzer import OptionsAnalyzer as ClassUnderTest
+from src.analyzer import OptionsAnalyzer as ClassUnderTest
 
 
 class AnalyzerTest(unittest.TestCase):

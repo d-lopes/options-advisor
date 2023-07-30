@@ -80,7 +80,9 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest --junitxml=out/test/junit/test-results.xml --cov=src --cov-report=xml:out/test/junit/coverage.xml
+          # run pytest (extra cmd line params loaded from pyproject.toml)
+          coverage run -m pytest
+
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
@@ -92,13 +94,3 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           file: out/test/junit/coverage.xml
-
-      #- name: Upload coverage reports to codecov.io
-      #  uses: codecov/codecov-action@v3
-      #  with:
-      #    token: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
-      #    files: out/test/junit/coverage.xml
-          # flags: unittests # optional
-          # name: codecov-umbrella # optional
-          # fail_ci_if_error: true # optional (default = false)
-          # verbose: true # optional (default = false)

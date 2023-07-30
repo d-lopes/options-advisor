@@ -3,8 +3,8 @@ from datetime import date
 
 import unittest
 
-from src.main.utils.highlighter import Highlighter as ClassUnderTest
-from src.main.analyzer import OptionsAnalyzer
+from src.utils.highlighter import Highlighter as ClassUnderTest
+from src.analyzer import OptionsAnalyzer
 
 
 class HighlighterTest(unittest.TestCase):
