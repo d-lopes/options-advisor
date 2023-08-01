@@ -12,10 +12,9 @@ class ExpirationDateExtractorTest(unittest.TestCase):
 
     class TestData:
 
-        CONTRACT_NAME = 'BAC230818P00031000'
         SYMBOL = 'BAC'
 
-    def test_get_extract_date(self):
+    def test_process(self):
 
         expected_value = datetime.fromisoformat('2023-08-18')
 
