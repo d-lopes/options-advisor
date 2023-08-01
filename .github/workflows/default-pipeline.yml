@@ -90,7 +90,8 @@ jobs:
           files: |
             out/test/junit/test-results.xml
 
-      - name: Upload coverage reports to coveralls.io
-        uses: coverallsapp/github-action@v2
-        with:
-          file: out/test/junit/coverage.xml
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
