@@ -1,7 +1,7 @@
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts =  "--junitxml=out/test/junit/test-results.xml --cov=src --cov-report=xml:out/test/junit/coverage.xml"
+addopts =  "--junitxml=out/tests/pytest/test-results.xml --cov=src --cov-report=xml:out/tests/pytest/coverage.xml"
 testpaths = [ "test" ]
 filterwarnings = [
     "error",
