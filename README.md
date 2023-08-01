@@ -14,18 +14,24 @@ Python Repo for tasks concerning management and selection of stock options @ NYS
 
 ### using command line
 
-adjust the parameters in the top of `./src/run.py`:
+run this command from command line within the root directory of this repo: `python3 -m src.run -h`
 
-```python
-symbols = ['BAC']
-mode = analyzer.Types.PUT
-default_filter = analyzer.Filter.getDefaults()
-default_filter.max_strike = 40
-start_week_offset = 3
-end_week_offset = start_week_offset + 4
+```console
+usage: run.py [-h] [-mode MODE] [-strike MAX_STRIKE] [-mp MIN_PUTS] [-mc MIN_CALLS] [-my MIN_YIELD] [-swo START_WEEK_OFFSET] [-ewo END_WEEK_OFFSET]
+
+gathers data about stock options
+
+options:
+  -h, --help            show this help message and exit
+  -mode MODE            PUT or CALL
+  -strike MAX_STRIKE    filter for maximum acceptable strike
+  -mp MIN_PUTS          filter for minium available puts
+  -mc MIN_CALLS         filter for minium available calls
+  -my MIN_YIELD         filter for minimum acceptable yield
+  -swo START_WEEK_OFFSET
+                        Offset from current week to start searching for expiry dates
+  -ewo END_WEEK_OFFSET  Offset from current week to end searching for expiry dates
 ```
-
-run this command from command line within the root directory of this repo: `python3 -m src.run`
 
 ### using Web UI
 

@@ -137,6 +137,13 @@ class AnalyzerTest(unittest.TestCase):
         self.MockData.EXAMPLE_RESPONSE['puts'] = pd.DataFrame(put_data, columns=self.MockData.COLUMNS)
         self.MockData.EXAMPLE_RESPONSE['calls'] = pd.DataFrame(call_data, columns=self.MockData.COLUMNS)
 
+    def test_filter_string_representation(self):
+        expected_value = "Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=100000)"
+
+        actual_value = AnalyzerTest.TestData.FILTER.__repr__()
+
+        self.assertEqual(expected_value, actual_value, 'unexpected return data')
+
     def test_get_info_handles_value_error_input(self):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)

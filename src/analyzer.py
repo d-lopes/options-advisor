@@ -23,6 +23,16 @@ class OptionsAnalyzer:
             self.min_yield = min_yield
             self.max_strike = max_strike
 
+        def __repr__(self):
+            ret_val = "Filter("
+            ret_val += f"min_puts={self.min_puts}, "
+            ret_val += f"min_calls={self.min_calls}, "
+            ret_val += f"min_yield={self.min_yield}, "
+            ret_val += f"max_strike={self.max_strike}"
+            ret_val += ")"
+
+            return ret_val
+
         @staticmethod
         def getDefaults():
             return OptionsAnalyzer.Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=100000)
