@@ -1,6 +1,6 @@
 # Options Advisor
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=d-lopes_options-advisor&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=d-lopes_options-advisor) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=d-lopes_options-advisor&metric=coverage)](https://sonarcloud.io/summary/new_code?id=d-lopes_options-advisor) [![Known Vulnerabilities](https://snyk.io/test/github/d-lopes/options-advisor/badge.svg)](<https://snyk.io/test/github/d-lopes/options-advisor>) [![License](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://mozilla.org/MPL/2.0)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=d-lopes_options-advisor&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=d-lopes_options-advisor) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=d-lopes_options-advisor&metric=coverage)](https://sonarcloud.io/summary/overall?id=d-lopes_options-advisor) [![Known Vulnerabilities](https://snyk.io/test/github/d-lopes/options-advisor/badge.svg)](<https://snyk.io/test/github/d-lopes/options-advisor>) [![License](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://mozilla.org/MPL/2.0)
 
 Python Repo for tasks concerning management and selection of stock options @ NYSE
 
