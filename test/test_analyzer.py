@@ -8,6 +8,7 @@ from unittest.mock import patch
 from src.analyzer import YahooFinanceWrapper as yfw
 
 from src.analyzer import OptionsAnalyzer as ClassUnderTest
+from src.utils.filter_opts import FilterOptions
 
 
 class AnalyzerTest(unittest.TestCase):
@@ -20,7 +21,7 @@ class AnalyzerTest(unittest.TestCase):
         EXP_DATE = date.fromisoformat('2023-08-18')
         ORDER_DATE = date.fromisoformat('2023-07-22')
         PRICE = 31.66
-        FILTER = ClassUnderTest.Filter.getDefaults()
+        FILTER = FilterOptions.getDefaults()
 
         EXAMPLE_RESULT = pd.DataFrame([
             [SYMBOL,  MODE.value, datetime.fromisoformat('2023-08-18'), 32.0, 37.175925925925924, PRICE, -1.073911, 0.94,
@@ -267,7 +268,7 @@ class AnalyzerTest(unittest.TestCase):
         mock1 = patch.object(yfw, 'get_live_price', return_value=48.1)
         mock2 = patch.object(yfw, 'get_options_chain', return_value=self.MockData.EXAMPLE_RESPONSE)
 
-        test_filter = ClassUnderTest.Filter.getDefaults()
+        test_filter = FilterOptions.getDefaults()
         test_filter.max_strike = 40
 
         with mock1 as get_live_price, mock2 as get_options_chain:

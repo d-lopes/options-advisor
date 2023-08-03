@@ -7,6 +7,7 @@ from src.analyzer import OptionsAnalyzer
 from src.utils.dyn_value_calc import DynamicValueCalculator as ClassUnderTest
 
 from test.test_analyzer import AnalyzerTest
+from src.utils.filter_opts import FilterOptions
 
 
 class DynamicValueCalculatorTest(unittest.TestCase):
@@ -19,7 +20,7 @@ class DynamicValueCalculatorTest(unittest.TestCase):
         EXP_DATE = date.fromisoformat('2023-08-18')
         ORDER_DATE = date.fromisoformat('2023-07-22')
         PRICE = 31.66
-        FILTER = OptionsAnalyzer.Filter.getDefaults()
+        FILTER = FilterOptions.getDefaults()
 
     def test_process(self):
 

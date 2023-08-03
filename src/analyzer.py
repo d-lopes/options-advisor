@@ -8,34 +8,10 @@ from src.utils.highlighter import Highlighter
 from src.utils.exp_date_extractor import ExpirationDateExtractor
 from src.utils.dyn_value_calc import DynamicValueCalculator
 
+from src.utils.filter_opts import FilterOptions
+
 
 class OptionsAnalyzer:
-
-    class Filter:
-        min_puts = None
-        min_calls = None
-        min_yield = None
-        max_strike = None
-
-        def __init__(self, min_puts=0, min_calls=0, min_yield=0, max_strike=1000):
-            self.min_puts = min_puts
-            self.min_calls = min_calls
-            self.min_yield = min_yield
-            self.max_strike = max_strike
-
-        def __repr__(self):
-            ret_val = "Filter("
-            ret_val += f"min_puts={self.min_puts}, "
-            ret_val += f"min_calls={self.min_calls}, "
-            ret_val += f"min_yield={self.min_yield}, "
-            ret_val += f"max_strike={self.max_strike}"
-            ret_val += ")"
-
-            return ret_val
-
-        @staticmethod
-        def getDefaults():
-            return OptionsAnalyzer.Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=100000)
 
     class Fields(Enum):
         TICKER = 'Ticker'
@@ -71,7 +47,7 @@ class OptionsAnalyzer:
 
     @staticmethod
     def get_info(ticker: str, type: Types = Types.PUT, expiration_date: date = None,
-                 price: float = 0, filter: Filter = None, order_date: date = None):
+                 price: float = 0, filter: FilterOptions = None, order_date: date = None):
         # get options
         try:
             all_options = YahooFinanceWrapper.get_options_chain(ticker, expiration_date)
@@ -159,7 +135,7 @@ class OptionsAnalyzer:
 
     @staticmethod
     def get_options(symbols=('BAC',), mode: Types = Types.PUT, year: int = 2023,
-                    start_week: int = 1, end_week: int = 1, filter: Filter = None):
+                    start_week: int = 1, end_week: int = 1, filter: FilterOptions = None):
 
         data = pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
 
