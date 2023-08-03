@@ -1,31 +1,22 @@
 import pandas as pd
-from datetime import date
 
 import unittest
 
 from src.analyzer import OptionsAnalyzer
 from src.utils.dyn_value_calc import DynamicValueCalculator as ClassUnderTest
 
-from test.test_analyzer import AnalyzerTest
-from src.utils.filter_opts import FilterOptions
+from test.utils.sample_data import SampleData
+from test.utils.mock_data import MockData
 
 
 class DynamicValueCalculatorTest(unittest.TestCase):
 
-    class TestData:
-
-        CONTRACT_NAME = 'BAC230818P00031000'
-        SYMBOL = 'BAC'
-        MODE = OptionsAnalyzer.Types.PUT
-        EXP_DATE = date.fromisoformat('2023-08-18')
-        ORDER_DATE = date.fromisoformat('2023-07-22')
-        PRICE = 31.66
-        FILTER = FilterOptions.getDefaults()
+    mock_data = MockData()
 
     def test_process(self):
 
         # only use certain lines of mock data example response and tweak it to be compatible with method calculate_yield()
-        test_options: pd.DataFrame = AnalyzerTest.MockData.EXAMPLE_RESPONSE['puts'].copy()
+        test_options: pd.DataFrame = self.mock_data.EXAMPLE_RESPONSE['puts'].copy()
         test_options = test_options.rename(columns={'Last Price': OptionsAnalyzer.Fields.PREMIUM.value})
         test_options = test_options.iloc[[0]]
         # test_options = test_options.reset_index(drop=True)
@@ -34,8 +25,8 @@ class DynamicValueCalculatorTest(unittest.TestCase):
         expected_distance = 52.62160454832596
         expected_yield = -4.506172839506172
 
-        dvc = ClassUnderTest(ordinal=20, expiration_date=self.TestData.EXP_DATE, order_date=self.TestData.ORDER_DATE,
-                             price=self.TestData.PRICE)
+        dvc = ClassUnderTest(ordinal=20, expiration_date=SampleData.EXP_DATE, order_date=SampleData.ORDER_DATE,
+                             price=SampleData.PRICE)
         actual_value = dvc.process(test_options)
 
         # check results
