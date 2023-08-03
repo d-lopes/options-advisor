@@ -1,5 +1,4 @@
 import pandas as pd
-import pandas.testing as pd_testing
 from datetime import date
 
 import unittest
@@ -12,28 +11,15 @@ from src.utils.filter_opts import FilterOptions
 
 from test.utils.sample_data import SampleData
 from test.utils.mock_data import MockData
+from test.utils.pd_base_testcase import PandasBaseTestCase
 
 
-class AnalyzerTest(unittest.TestCase):
+class AnalyzerTest(PandasBaseTestCase):
 
     mock_data = MockData()
 
-    def assert_frame_equal(self, a, b, msg):
-        try:
-            pd_testing.assert_frame_equal(a, b)
-        except AssertionError as e:
-            raise self.failureException(msg) from e
-
-    def assert_series_equal(self, a, b, msg):
-        try:
-            pd_testing.assert_series_equal(a, b)
-        except AssertionError as e:
-            raise self.failureException(msg) from e
-
     def setUp(self):
-        # enable comparison of data frames
-        self.addTypeEqualityFunc(pd.DataFrame, self.assert_frame_equal)
-        self.addTypeEqualityFunc(pd.Series, self.assert_series_equal)
+        PandasBaseTestCase.setUp(self)
 
     def test_filter_string_representation(self):
         expected_value = "Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=100000)"
