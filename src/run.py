@@ -7,7 +7,7 @@ import json
 from IPython.display import display
 
 from src.analyzer import OptionsAnalyzer as Analyzer
-from src.utils.filter_opts import FilterOptions
+from src.utils.opts_tbl_filter import OptionsTableFilter
 
 logger = logging.getLogger('main')
 logging.basicConfig()
@@ -54,9 +54,9 @@ if __name__ == '__main__':
         file_data = json.load(file)
         symbols = file_data['watchlist']
 
-    filter = FilterOptions(args.min_puts, args.min_calls, args.min_yield, args.max_strike)
+    filter = OptionsTableFilter.FilterOptions(args.min_puts, args.min_calls, args.min_yield, args.max_strike)
     data = Analyzer.get_options(symbols, args.mode, 2023, start_week, end_week, filter)
-    rows = data.__len__()
+    rows = len(data.index)
 
     print("\n")
     logger.info(f"- Time: {now.strftime('%d/%m/%Y, %H:%M:%S')}")

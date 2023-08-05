@@ -2,7 +2,7 @@ from datetime import date, datetime
 import pandas as pd
 
 from src.analyzer import OptionsAnalyzer
-from src.utils.filter_opts import FilterOptions
+from src.utils.opts_tbl_filter import OptionsTableFilter
 
 
 class SampleData:
@@ -13,7 +13,7 @@ class SampleData:
     EXP_DATE = date.fromisoformat('2023-08-18')
     ORDER_DATE = date.fromisoformat('2023-07-22')
     PRICE = 31.66
-    FILTER = FilterOptions.get_defaults()
+    FILTER = OptionsTableFilter.FilterOptions.get_defaults()
 
     EXAMPLE_RESULT = pd.DataFrame([
         [SYMBOL,  MODE.value, datetime.fromisoformat('2023-08-18'), 32.0, 37.175925925925924, PRICE, -1.073911, 0.94,

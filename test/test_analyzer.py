@@ -7,7 +7,7 @@ from unittest.mock import patch
 from src.analyzer import YahooFinanceWrapper as yfw
 
 from src.analyzer import OptionsAnalyzer as ClassUnderTest
-from src.utils.filter_opts import FilterOptions
+from src.utils.opts_tbl_filter import OptionsTableFilter
 
 from test.utils.sample_data import SampleData
 from test.utils.mock_data import MockData
@@ -20,13 +20,6 @@ class AnalyzerTest(PandasBaseTestCase):
 
     def setUp(self):
         PandasBaseTestCase.setUp(self)
-
-    def test_filter_string_representation(self):
-        expected_value = "Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=100000)"
-
-        actual_value = SampleData.FILTER.__repr__()
-
-        self.assertEqual(expected_value, actual_value, 'unexpected return data')
 
     def test_get_info_handles_value_error_input(self):
 
@@ -151,7 +144,7 @@ class AnalyzerTest(PandasBaseTestCase):
         mock1 = patch.object(yfw, 'get_live_price', return_value=48.1)
         mock2 = patch.object(yfw, 'get_options_chain', return_value=self.mock_data.EXAMPLE_RESPONSE)
 
-        test_filter = FilterOptions.get_defaults()
+        test_filter = OptionsTableFilter.FilterOptions.get_defaults()
         test_filter.max_strike = 40
 
         with mock1 as get_live_price, mock2 as get_options_chain:

@@ -7,8 +7,7 @@ from src.utils.yahoo_fin_wrapper import YahooFinanceWrapper
 from src.utils.highlighter import Highlighter
 from src.utils.exp_date_extractor import ExpirationDateExtractor
 from src.utils.dyn_value_calc import DynamicValueCalculator
-
-from src.utils.filter_opts import FilterOptions
+from src.utils.opts_tbl_filter import OptionsTableFilter
 
 
 class OptionsAnalyzer:
@@ -47,7 +46,7 @@ class OptionsAnalyzer:
 
     @staticmethod
     def get_info(ticker: str, type: Types = Types.PUT, expiration_date: date = None,
-                 price: float = 0, filter: FilterOptions = None, order_date: date = None):
+                 price: float = 0, filter: OptionsTableFilter.FilterOptions = None, order_date: date = None):
         # get options
         try:
             all_options = YahooFinanceWrapper.get_options_chain(ticker, expiration_date)
@@ -66,29 +65,19 @@ class OptionsAnalyzer:
         col_name1 = OptionsAnalyzer.Fields.CONTRACT_NAME.value
         col_name2 = OptionsAnalyzer.Fields.EXPIRATION_DATE.value
         ede = ExpirationDateExtractor(ordinal=10, ticker=ticker, source=col_name1, target=col_name2)
-        ede.process(put_options)
-        ede.process(call_options)
+        put_options = ede.process(put_options)
+        call_options = ede.process(call_options)
 
         # link PUTs and CALLs based on their strike price and expiration date
         options = OptionsAnalyzer.link_puts_and_calls(type, put_options, call_options)
 
         # calculate dynamic values
         dvc = DynamicValueCalculator(ordinal=20, expiration_date=expiration_date, order_date=order_date, price=price)
-        dvc.process(options)
+        options = dvc.process(options)
 
         # filter for relevant data
-        relevant_options = options.loc[
-                            (options[OptionsAnalyzer.Fields.PUTS_CNT.value] >= filter.min_puts) &
-                            (options[OptionsAnalyzer.Fields.CALLS_CNT.value] >= filter.min_calls) &
-                            (options[OptionsAnalyzer.Fields.YIELD.value] >= filter.min_yield) &
-                            (options[OptionsAnalyzer.Fields.STRIKE.value] <= filter.max_strike),
-                            [OptionsAnalyzer.Fields.CONTRACT_NAME.value, OptionsAnalyzer.Fields.STRIKE.value,
-                             OptionsAnalyzer.Fields.PREMIUM.value, OptionsAnalyzer.Fields.BID.value,
-                             OptionsAnalyzer.Fields.ASK.value, OptionsAnalyzer.Fields.VOLUME.value,
-                             OptionsAnalyzer.Fields.OPEN_INTEREST.value, OptionsAnalyzer.Fields.IMPLIED_VOLATILITY.value,
-                             OptionsAnalyzer.Fields.EXPIRATION_DATE.value, OptionsAnalyzer.Fields.CALLS_CNT.value,
-                             OptionsAnalyzer.Fields.PUTS_CNT.value, OptionsAnalyzer.Fields.DIFFERENCE.value,
-                             OptionsAnalyzer.Fields.DISTANCE.value, OptionsAnalyzer.Fields.YIELD.value]]
+        otf = OptionsTableFilter(ordinal=30, filter=filter)
+        relevant_options = otf.process(options)
 
         # add additional "static" values
         relevant_options[OptionsAnalyzer.Fields.TICKER.value] = ticker
@@ -135,7 +124,7 @@ class OptionsAnalyzer:
 
     @staticmethod
     def get_options(symbols=('BAC',), mode: Types = Types.PUT, year: int = 2023,
-                    start_week: int = 1, end_week: int = 1, filter: FilterOptions = None):
+                    start_week: int = 1, end_week: int = 1, filter: OptionsTableFilter.FilterOptions = None):
 
         data = pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
 
