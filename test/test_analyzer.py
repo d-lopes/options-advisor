@@ -151,7 +151,7 @@ class AnalyzerTest(PandasBaseTestCase):
         mock1 = patch.object(yfw, 'get_live_price', return_value=48.1)
         mock2 = patch.object(yfw, 'get_options_chain', return_value=self.mock_data.EXAMPLE_RESPONSE)
 
-        test_filter = FilterOptions.getDefaults()
+        test_filter = FilterOptions.get_defaults()
         test_filter.max_strike = 40
 
         with mock1 as get_live_price, mock2 as get_options_chain:

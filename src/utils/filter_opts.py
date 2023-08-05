@@ -23,5 +23,5 @@ class FilterOptions:
         return ret_val
 
     @staticmethod
-    def getDefaults():
+    def get_defaults():
         return FilterOptions(min_puts=1000, min_calls=1000, min_yield=10, max_strike=100000)

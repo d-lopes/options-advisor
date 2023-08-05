@@ -11,26 +11,41 @@ Python Repo for tasks concerning management and selection of stock options @ NYS
 - python 3.11 must be installed
 - the dependencies from the `./requirements.txt` must be installed via pip
     => run this command from command line within the root directory of this repo: `pip3 install -r requirements.txt`
+- if you want to export the results of your scan of stock options to XLSX format, then you need to to run `pip install openpyxl` so that you have the required python modules on your local machine
 
 ### using command line
 
 run this command from command line within the root directory of this repo: `python3 -m src.run -h`
 
 ```console
-usage: run.py [-h] [-mode MODE] [-strike MAX_STRIKE] [-mp MIN_PUTS] [-mc MIN_CALLS] [-my MIN_YIELD] [-swo START_WEEK_OFFSET] [-ewo END_WEEK_OFFSET]
+usage: run.py [-h] [-mode MODE] [-ms MAX_STRIKE] [-mp MIN_PUTS] [-mc MIN_CALLS] [-my MIN_YIELD] [-swo START_WEEK_OFFSET] [-ewo END_WEEK_OFFSET]
+              [-o OUTPUT_PATH] [-f OUTPUT_FORMAT]
 
 gathers data about stock options
 
 options:
   -h, --help            show this help message and exit
-  -mode MODE            PUT or CALL
-  -strike MAX_STRIKE    filter for maximum acceptable strike
-  -mp MIN_PUTS          filter for minium available puts
-  -mc MIN_CALLS         filter for minium available calls
-  -my MIN_YIELD         filter for minimum acceptable yield
+  -mode MODE            PUT (default) or CALL
+  -ms MAX_STRIKE        filter for maximum acceptable strike (Default = 60)
+  -mp MIN_PUTS          filter for minium available puts (Default = 1000)
+  -mc MIN_CALLS         filter for minium available calls (Default = 1000)
+  -my MIN_YIELD         filter for minimum acceptable yield (Default = 10)
   -swo START_WEEK_OFFSET
-                        Offset from current week to start searching for expiry dates
-  -ewo END_WEEK_OFFSET  Offset from current week to end searching for expiry dates
+                        offset from current week to start searching for expiry dates (Default = 3)
+  -ewo END_WEEK_OFFSET  offset from current week to end searching for expiry dates (Default = 7)
+  -o OUTPUT_PATH        destination to write the result to. If empty, then no data is written to disk. Instead it is printed on screen (Default = None)
+  -f OUTPUT_FORMAT      CSV (default) or XLSX
+```
+
+For example after execution of `python3 -m src.run -ms 180 -o ./results.csv`, you will see output like this in your console:
+
+```console
+Time: 05/08/2023, 12:02:03
+applied Filter: Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=180.0)
+
+found: 6
+
+results written to disk: ./results.csv
 ```
 
 ### using Web UI
