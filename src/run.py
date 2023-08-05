@@ -73,8 +73,8 @@ if __name__ == '__main__':
     logger.info(f"datetime: {now.strftime('%d/%m/%Y, %H:%M:%S')}")
     logger.info(f"scan started: {humanize.naturaltime(elapsed_time)}")
     logger.info(f"scanned underlyings: {symbols}")
-    logger.info(f"applied Filter: {filter}")
-    logger.info(f"found: {rows}")
+    logger.info(f"applied filter: {filter}")
+    logger.info(f"found options: {rows}")
 
     # write results to disk
     if ((args.output_path is not None) & (rows > 0)):
@@ -85,7 +85,7 @@ if __name__ == '__main__':
             data.to_csv(args.output_path)
         logger.info(f"results written to disk: {args.output_path}")
     else:
-        logger.info("- Results:")
+        logger.info("results:")
         print("\n")
         display(data)
 

@@ -74,8 +74,8 @@ After execution, the program will end with a summary similar to this:
 datetime: 05/08/2023, 20:18:23
 scan started: 6 seconds ago
 scanned underlyings: ['AMZN', 'BAC']
-applied Filter: Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=35.0, moneyness=OTM)
-found: 1
+applied filter: Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=35.0, moneyness=OTM)
+found options: 1
 results written to disk: ./out/results.csv
 ```
 
