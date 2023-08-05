@@ -1,5 +1,6 @@
 import pandas as pd
 from datetime import date, timedelta
+from typing import Optional
 
 import src.utils.processor as root
 import src.analyzer as dfn
@@ -7,9 +8,9 @@ import src.analyzer as dfn
 
 class DynamicValueCalculator(root.Processor):
 
-    expiration_date: date = None
-    order_date: date = None
-    price: float = None
+    expiration_date: Optional[date] = None
+    order_date: Optional[date] = None
+    price: Optional[float] = None
 
     def __init__(self, ordinal: int,  expiration_date: date, order_date: date, price: float):
         root.Processor.__init__(self, ordinal)

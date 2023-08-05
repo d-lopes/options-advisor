@@ -1,5 +1,6 @@
 import pandas as pd
 from enum import Enum
+from typing import Optional
 
 import src.analyzer as analyzer
 import src.utils.processor as root
@@ -13,13 +14,15 @@ class OptionsTableFilter(root.Processor):
         OUT = 'OTM'
 
     class FilterOptions:
-        min_puts = None
-        min_calls = None
-        min_yield = None
-        max_strike = None
-        moneyness = None
+        min_puts: Optional[int] = None
+        min_calls: Optional[int] = None
+        min_yield: Optional[float] = None
+        max_strike: Optional[float] = None
+        moneyness: Optional[str] = None
 
-        def __init__(self, min_puts=None, min_calls=None, min_yield=None, max_strike=None, moneyness=None):
+        def __init__(self, min_puts: int = None, min_calls: int = None, min_yield: float = None,
+                     max_strike: float = None, moneyness: str = None):
+
             self.min_puts = min_puts
             self.min_calls = min_calls
             self.min_yield = min_yield
@@ -47,8 +50,8 @@ class OptionsTableFilter(root.Processor):
             return OptionsTableFilter.FilterOptions(min_puts=1000, min_calls=1000, min_yield=10, max_strike=100000,
                                                     moneyness=OptionsTableFilter.Moneyness.IN)
 
-    filter = None
-    type = None
+    filter: FilterOptions = None
+    type: str = None
 
     def __init__(self, ordinal: int, type: str, filter: FilterOptions):
         root.Processor.__init__(self, ordinal)

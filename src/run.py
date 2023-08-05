@@ -70,8 +70,8 @@ if __name__ == '__main__':
     elapsed_time: timedelta = end_time - start_time
 
     print("\n-------- SUMMARY ---------")
-    logger.info(f"datetime: {now.strftime('%d/%m/%Y, %H:%M:%S')}")
-    logger.info(f"scan started: {humanize.naturaltime(elapsed_time)}")
+    logger.info(f"finished run on: {now.strftime('%d/%m/%Y, %H:%M:%S')}")
+    logger.info(f"started scan at: {humanize.naturaltime(elapsed_time)}")
     logger.info(f"scanned underlyings: {symbols}")
     logger.info(f"applied filter: {filter}")
     logger.info(f"found options: {rows}")

@@ -1,9 +1,10 @@
 import pandas as pd
+from typing import Optional
 
 
 class Processor:
 
-    ordinal = None
+    ordinal: Optional[int] = None
 
     def __init__(self, ordinal: int):
         self.ordinal = ordinal

@@ -1,4 +1,6 @@
 import pandas as pd
+from typing import Optional
+
 import unittest
 
 from src.analyzer import OptionsAnalyzer
@@ -9,7 +11,7 @@ from test.utils.pd_base_testcase import PandasBaseTestCase
 
 class OptionsTableFilterTest(PandasBaseTestCase):
 
-    TEST_DATA = None
+    TEST_DATA: Optional[pd.DataFrame] = None
 
     def setUp(self):
         PandasBaseTestCase.setUp(self)

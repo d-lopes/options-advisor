@@ -94,7 +94,6 @@ class OptionsAnalyzer:
 
     @staticmethod
     def link_puts_and_calls(type, put_options, call_options):
-        options = pd.DataFrame()
 
         merge_columns = [OptionsAnalyzer.Fields.STRIKE.value, OptionsAnalyzer.Fields.EXPIRATION_DATE.value]
         if (type == OptionsAnalyzer.Types.PUT):
@@ -135,12 +134,12 @@ class OptionsAnalyzer:
 
                 # if filter is given, calculate threshold for price too high (when strike + 20%)
                 if (filter is not None):
-                    priceTooHigh = price > filter.max_strike * 1.2
+                    price_too_high = price > filter.max_strike * 1.2
                 else:
-                    priceTooHigh = False
+                    price_too_high = False
 
                 # skip processing of underlying when live price is above acceptable value
-                if (priceTooHigh):
+                if price_too_high:
                     OptionsAnalyzer.logger.warning(f"price of underlying {symbol} is too high. Skipping this symbol!")
                     continue
 

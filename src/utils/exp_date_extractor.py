@@ -1,14 +1,15 @@
 import pandas as pd
 from datetime import datetime
+from typing import Optional
 
 import src.utils.processor as root
 
 
 class ExpirationDateExtractor(root.Processor):
 
-    source_col = None
-    target_col = None
-    ticker = None
+    source_col: Optional[str] = None
+    target_col: Optional[str] = None
+    ticke: Optional[str] = None
 
     def __init__(self, ordinal: int, ticker: str, source: str, target: str):
         root.Processor.__init__(self, ordinal)
