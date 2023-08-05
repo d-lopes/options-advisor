@@ -14,6 +14,7 @@ class SampleData:
     ORDER_DATE = date.fromisoformat('2023-07-22')
     PRICE = 31.66
     FILTER = OptionsTableFilter.FilterOptions.get_defaults()
+    FILTER.moneyness = None
 
     EXAMPLE_RESULT = pd.DataFrame([
         [SYMBOL,  MODE.value, datetime.fromisoformat('2023-08-18'), 32.0, 37.175925925925924, PRICE, -1.073911, 0.94,

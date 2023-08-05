@@ -51,7 +51,7 @@ class OptionsAnalyzer:
         try:
             all_options = YahooFinanceWrapper.get_options_chain(ticker, expiration_date)
         except ValueError as err:
-            OptionsAnalyzer.logger.error('unable to retrieve data for symbol %s: %s', ticker, err)
+            OptionsAnalyzer.logger.error(f"unable to retrieve data for symbol {ticker}: {err}")
             return pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
 
         put_options = all_options['puts']
@@ -76,7 +76,7 @@ class OptionsAnalyzer:
         options = dvc.process(options)
 
         # filter for relevant data
-        otf = OptionsTableFilter(ordinal=30, filter=filter)
+        otf = OptionsTableFilter(ordinal=30, type=type, filter=filter)
         relevant_options = otf.process(options)
 
         # add additional "static" values
@@ -102,7 +102,7 @@ class OptionsAnalyzer:
         elif (type == OptionsAnalyzer.Types.CALL):
             options = pd.merge(call_options, put_options, how="left", on=merge_columns, suffixes=("", "_merged"))
         else:
-            raise ValueError(Exception('invalid type "' + type + '"'))
+            raise ValueError(Exception(f"invalid type '{type}'"))
 
         # cosmetic changes: name columns properly
         options = options.rename(columns={'Last Price': OptionsAnalyzer.Fields.PREMIUM.value})
@@ -140,11 +140,11 @@ class OptionsAnalyzer:
 
                 # skip processing of underlying when live price is above acceptable value
                 if (priceTooHigh):
-                    OptionsAnalyzer.logger.warning('price of underlying %s is too high. Skipping this symbol!', symbol)
+                    OptionsAnalyzer.logger.warning(f"price of underlying {symbol} is too high. Skipping this symbol!")
                     continue
 
             except AssertionError:
-                OptionsAnalyzer.logger.error('unable to retrieve price for symbol %s.', symbol)
+                OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
                 continue
 
             data = OptionsAnalyzer._get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price)
@@ -156,12 +156,12 @@ class OptionsAnalyzer:
         for week in range(start_week, end_week):
             expiration_date = date.fromisocalendar(year, week, 5)
             order_date = date.today()
-            OptionsAnalyzer.logger.info("get data for %s with expiration date %d", symbol, expiration_date)
+            OptionsAnalyzer.logger.info(f"get data for {symbol} with expiration date {expiration_date}")
 
             try:
                 more_data = OptionsAnalyzer.get_info(symbol, mode, expiration_date, price, filter, order_date)
             except KeyError:
-                OptionsAnalyzer.logger.error('unable to analyze data for symbol %s. Continuing with next symbol!', symbol)
+                OptionsAnalyzer.logger.error(f"unable to analyze data for symbol {symbol}. Continuing with next symbol!")
                 continue
             data = pd.concat([data, more_data], ignore_index=True)
 

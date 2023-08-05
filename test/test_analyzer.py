@@ -41,7 +41,7 @@ class AnalyzerTest(PandasBaseTestCase):
 
     def test_get_info_handles_incorrect_mode(self):
 
-        expected_value = 'invalid type "incorrect"'
+        expected_value = "invalid type 'incorrect'"
         mocked_data = self.mock_data.EXAMPLE_RESPONSE
 
         with patch.object(yfw, 'get_options_chain', return_value=mocked_data) as mocked_method:

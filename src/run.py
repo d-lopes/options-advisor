@@ -33,6 +33,8 @@ if __name__ == '__main__':
                         type=int, default=1000)
     parser.add_argument('-my', dest='min_yield', help='filter for minimum acceptable yield (Default = 10)',
                         type=float, default=10)
+    parser.add_argument('-mn', dest='moneyness', help='filter for the moneyness: OTM (default), ITM or ATM',
+                        type=OptionsTableFilter.Moneyness, default=OptionsTableFilter.Moneyness.OUT)
     parser.add_argument('-swo', dest='start_week_offset', help='offset from current week to start searching for ' +
                         'expiry dates (Default = 3)', type=int, default=3)
     parser.add_argument('-ewo', dest='end_week_offset', help='offset from current week to end searching for ' +
