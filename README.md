@@ -18,13 +18,14 @@ Python Repo for tasks concerning management and selection of stock options @ NYS
 run this command from command line within the root directory of this repo: `python3 -m src.run -h`
 
 ```console
-usage: run.py [-h] [-mode MODE] [-ms MAX_STRIKE] [-mp MIN_PUTS] [-mc MIN_CALLS] [-my MIN_YIELD] [-swo START_WEEK_OFFSET] [-ewo END_WEEK_OFFSET]
+usage: run.py [-h] -i INPUT_FILE [-mode MODE] [-ms MAX_STRIKE] [-mp MIN_PUTS] [-mc MIN_CALLS] [-my MIN_YIELD] [-swo START_WEEK_OFFSET] [-ewo END_WEEK_OFFSET]
               [-o OUTPUT_PATH] [-f OUTPUT_FORMAT]
 
 gathers data about stock options
 
 options:
   -h, --help            show this help message and exit
+  -i INPUT_FILE         an input file defining the settings to scan for options
   -mode MODE            PUT (default) or CALL
   -ms MAX_STRIKE        filter for maximum acceptable strike (Default = 60)
   -mp MIN_PUTS          filter for minium available puts (Default = 1000)
@@ -34,18 +35,20 @@ options:
                         offset from current week to start searching for expiry dates (Default = 3)
   -ewo END_WEEK_OFFSET  offset from current week to end searching for expiry dates (Default = 7)
   -o OUTPUT_PATH        destination to write the result to. If empty, then no data is written to disk. Instead it is printed on screen (Default = None)
-  -f OUTPUT_FORMAT      CSV (default) or XLSX
+  -f OUTPUT_FORMAT      CSV (default) or XLSX (requires python module openpyxl)
 ```
 
-For example after execution of `python3 -m src.run -ms 180 -o ./results.csv`, you will see output like this in your console:
+For example after execution of `python3 -m src.run -i resources/samples/settings.example.json -ms 35 -o ./results.csv`, you will see output like this in your console:
 
 ```console
-Time: 05/08/2023, 12:02:03
-applied Filter: Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=180.0)
+WARNING:optionsAnalyzer:price of underlying AMZN is too high. Skipping this symbol!
 
-found: 6
 
-results written to disk: ./results.csv
+INFO:main:- Time: 05/08/2023, 13:06:03
+INFO:main:- scanned underlyings: ['AMZN', 'BAC']
+INFO:main:- applied Filter: Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=35.0)
+INFO:main:- found: 8
+INFO:main:- results written to disk: ./results.csv
 ```
 
 ### using Web UI

@@ -2,16 +2,16 @@ from datetime import datetime
 from enum import Enum
 import logging
 import argparse
+import json
 
 from IPython.display import display
 
 from src.analyzer import OptionsAnalyzer as Analyzer
 from src.utils.filter_opts import FilterOptions
 
-# only NYSE listed stocks are possible
-# BEPC and LPX caused issues. thus they were removed from the list of symbols below
-symbols = ['CVX']#, 'AMZN', 'NKE', 'TSM', 'LPX', 'OXY', 'KR', 'KHC', 'BAC', 'ALLY', 'PARA', 'STNE', 'PFE', 'CSX']
 logger = logging.getLogger('main')
+logging.basicConfig()
+logger.setLevel(logging.INFO)
 
 
 class Format(Enum):
@@ -22,6 +22,8 @@ class Format(Enum):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='gathers data about stock options')
+    parser.add_argument('-i', dest='input_file', help='an input file defining the settings to scan for options',
+                        type=str, required=True)
     parser.add_argument('-mode', dest='mode', help='PUT (default) or CALL', type=Analyzer.Types, default=Analyzer.Types.PUT)
     parser.add_argument('-ms', dest='max_strike', help='filter for maximum acceptable strike (Default = 60)',
                         type=float, default=60)
@@ -47,13 +49,20 @@ if __name__ == '__main__':
     start_week = now.isocalendar().week + args.start_week_offset
     end_week = start_week - args.start_week_offset + args.end_week_offset
 
+    # Opening input file in JSON format to retrieve the watchlist
+    with open(args.input_file) as file:
+        file_data = json.load(file)
+        symbols = file_data['watchlist']
+
     filter = FilterOptions(args.min_puts, args.min_calls, args.min_yield, args.max_strike)
     data = Analyzer.get_options(symbols, args.mode, 2023, start_week, end_week, filter)
     rows = data.__len__()
 
-    print(f"\n\nTime: {now.strftime('%d/%m/%Y, %H:%M:%S')}")
-    print(f"applied Filter: {filter}\n")
-    print(f"found: {rows}\n")
+    print("\n")
+    logger.info(f"- Time: {now.strftime('%d/%m/%Y, %H:%M:%S')}")
+    logger.info(f"- scanned underlyings: {symbols}")
+    logger.info(f"- applied Filter: {filter}")
+    logger.info(f"- found: {rows}")
 
     # write results to disk
     if ((args.output_path is not None) & (rows > 0)):
@@ -62,6 +71,10 @@ if __name__ == '__main__':
             data.to_excel(args.output_path)
         else:
             data.to_csv(args.output_path)
-        print(f"results written to disk: {args.output_path}\n")
+        logger.info(f"- results written to disk: {args.output_path}")
     else:
+        logger.info("- Results:")
+        print("\n")
         display(data)
+
+    print("\n")

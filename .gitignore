@@ -164,3 +164,4 @@ out/*
 
 # Mac specific file content
 .DS_Store
+resources/samples/my_settings.json
