@@ -4,17 +4,17 @@
 
 Lightweight Robo-Advisor for Stock Options
 
-The following use case is currently supported: **scan available stock options based on given criteria**
+The following use case is currently supported: **scan all available options for one or more stocks in a time frame**
 
 Information about stock options for the [underlyings](<https://www.investopedia.com/terms/u/underlying.asp>) are loaded in bulk based on your watchlist, filtered based on the given criteria and either printed on screen or stored on your file system.
 
-highlighted criteria to filter on:
+Highlighted criteria which you can filter on:
 
-- desired balance between number of [PUT options](<https://www.investopedia.com/terms/p/put.asp>) and   number of [CALL options](<https://www.investopedia.com/terms/p/put.asp>)
-- time frame 
-- maximum [strike price](<https://www.investopedia.com/terms/s/strikeprice.asp>)
-- minimum [yield](<https://www.investopedia.com/terms/y/yield.asp>)
-- the [moneyness](<https://www.investopedia.com/terms/m/moneyness.asp>)
+- desired balance between number of [PUT options](<https://www.investopedia.com/terms/p/putoption.asp>) and   number of [CALL options](<https://www.investopedia.com/terms/c/calloption.asp>)
+- desired time frame for [expiration dates](<https://www.investopedia.com/terms/e/expirationdate.asp>)
+- desired cash 'at risk' based on maximum [strike price](<https://www.investopedia.com/terms/s/strikeprice.asp>)
+- desired ROI based on minimum [yield](<https://www.investopedia.com/terms/y/yield.asp>)
+- desired intrinsic value based on [moneyness](<https://www.investopedia.com/terms/m/moneyness.asp>)
 
 The raw information about stock options and market prices is loaded from [Yahoo Finance](https://finance.yahoo.com/) and extended with additional calculations or hints.
 
