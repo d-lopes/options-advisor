@@ -2,7 +2,25 @@
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=d-lopes_options-advisor&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=d-lopes_options-advisor) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=d-lopes_options-advisor&metric=coverage)](https://sonarcloud.io/summary/overall?id=d-lopes_options-advisor) [![Known Vulnerabilities](https://snyk.io/test/github/d-lopes/options-advisor/badge.svg)](<https://snyk.io/test/github/d-lopes/options-advisor>) [![License](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://mozilla.org/MPL/2.0)
 
-Python Repo for tasks concerning management and selection of stock options @ NYSE
+Lightweight Robo-Advisor for Stock Options
+
+The following use case is currently supported: **scan available stock options based on given criteria**
+
+Information about stock options for the [underlyings](<https://www.investopedia.com/terms/u/underlying.asp>) are loaded in bulk based on your watchlist, filtered based on the given criteria and either printed on screen or stored on your file system.
+
+highlighted criteria to filter on:
+
+- desired balance between number of [PUT options](<https://www.investopedia.com/terms/p/put.asp>) and   number of [CALL options](<https://www.investopedia.com/terms/p/put.asp>)
+- time frame 
+- maximum [strike price](<https://www.investopedia.com/terms/s/strikeprice.asp>)
+- minimum [yield](<https://www.investopedia.com/terms/y/yield.asp>)
+- the [moneyness](<https://www.investopedia.com/terms/m/moneyness.asp>)
+
+The raw information about stock options and market prices is loaded from [Yahoo Finance](https://finance.yahoo.com/) and extended with additional calculations or hints.
+
+As result, you can generate a CSV or XLSX file with similar content to this:
+
+![example result](./doc/media/example-result.png "Example Result")
 
 ## Getting Started
 
@@ -13,7 +31,9 @@ Python Repo for tasks concerning management and selection of stock options @ NYS
     => run this command from command line within the root directory of this repo: `pip3 install -r requirements.txt`
 - if you want to export the results of your scan of stock options to XLSX format, then you need to to run `pip install openpyxl` so that you have the required python modules on your local machine
 
-### using command line
+## Usage
+
+### Command line
 
 run this command from command line within the root directory of this repo: `python3 -m src.run -h`
 
@@ -53,13 +73,13 @@ INFO:main:- found: 8
 INFO:main:- results written to disk: ./results.csv
 ```
 
-### using Web UI
+### Web interface
 
-tbd
+will be provided in the future
 
-### using docker
+### Docker
 
-tbd
+will be provided in the future
 
 ## How to test?
 

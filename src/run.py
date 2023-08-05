@@ -10,8 +10,7 @@ from src.analyzer import OptionsAnalyzer as Analyzer
 from src.utils.opts_tbl_filter import OptionsTableFilter
 
 logger = logging.getLogger('main')
-logging.basicConfig()
-logger.setLevel(logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
 
 class Format(Enum):
@@ -56,7 +55,7 @@ if __name__ == '__main__':
         file_data = json.load(file)
         symbols = file_data['watchlist']
 
-    filter = OptionsTableFilter.FilterOptions(args.min_puts, args.min_calls, args.min_yield, args.max_strike)
+    filter = OptionsTableFilter.FilterOptions(args.min_puts, args.min_calls, args.min_yield, args.max_strike, args.moneyness)
     data = Analyzer.get_options(symbols, args.mode, 2023, start_week, end_week, filter)
     rows = len(data.index)
 

@@ -130,6 +130,7 @@ class OptionsAnalyzer:
 
         for symbol in symbols:
             try:
+                OptionsAnalyzer.logger.info(f"loading data for {symbol} ...")
                 price = YahooFinanceWrapper.get_live_price(symbol)
 
                 # if filter is given, calculate threshold for price too high (when strike + 20%)
