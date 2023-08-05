@@ -35,7 +35,7 @@ As result, you can generate a CSV or XLSX file with similar content to this:
 
 ### Command line
 
-run this command from command line within the root directory of this repo: `python3 -m src.run -h`
+To run this command from command line, you have the following options:
 
 ```console
 usage: run.py [-h] -i INPUT_FILE [-mode MODE] [-ms MAX_STRIKE] [-mp MIN_PUTS] [-mc MIN_CALLS]
@@ -60,17 +60,10 @@ options:
   -f OUTPUT_FORMAT      CSV (default) or XLSX (requires python module openpyxl)
 ```
 
-For example after execution of `python3 -m src.run -i resources/samples/settings.example.json -ms 35 -o ./out/results.csv`, you will see output like this in your console:
+For example, you can execute the program in your console as follows:
 
-```console
-WARNING:optionsAnalyzer:price of underlying AMZN is too high. Skipping this symbol!
-
-
-INFO:main:- Time: 05/08/2023, 13:06:03
-INFO:main:- scanned underlyings: ['AMZN', 'BAC']
-INFO:main:- applied Filter: Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=35.0, moneyness=None)
-INFO:main:- found: 8
-INFO:main:- results written to disk: ./results.csv
+```bash
+python3 -m src.run -i ./resources/samples/settings.example.json -ms 35 -o ./out/results.csv
 ```
 
 ### Web interface
