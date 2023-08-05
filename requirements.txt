@@ -2,6 +2,7 @@ numpy>=1.22.2
 pandas==2.0.3
 requests==2.31.0
 html5lib==1.1
+humanize==4.7.0
 requests_html==0.10.0
 yahoo_fin==0.8.9.1
 pytest==7.4.0

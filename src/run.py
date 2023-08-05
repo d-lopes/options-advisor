@@ -1,4 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
+import humanize
+
 from enum import Enum
 import logging
 import argparse
@@ -10,7 +13,7 @@ from src.analyzer import OptionsAnalyzer as Analyzer
 from src.utils.opts_tbl_filter import OptionsTableFilter
 
 logger = logging.getLogger('main')
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 
 class Format(Enum):
@@ -19,6 +22,9 @@ class Format(Enum):
 
 
 if __name__ == '__main__':
+
+    # Start timer
+    start_time = time.time()
 
     parser = argparse.ArgumentParser(description='gathers data about stock options')
     parser.add_argument('-i', dest='input_file', help='an input file defining the settings to scan for options',
@@ -59,11 +65,16 @@ if __name__ == '__main__':
     data = Analyzer.get_options(symbols, args.mode, 2023, start_week, end_week, filter)
     rows = len(data.index)
 
-    print("\n")
-    logger.info(f"- Time: {now.strftime('%d/%m/%Y, %H:%M:%S')}")
-    logger.info(f"- scanned underlyings: {symbols}")
-    logger.info(f"- applied Filter: {filter}")
-    logger.info(f"- found: {rows}")
+    # End timer and calculate elapsed time
+    end_time = time.time()
+    elapsed_time: timedelta = end_time - start_time
+
+    print("\n-------- SUMMARY ---------")
+    logger.info(f"datetime: {now.strftime('%d/%m/%Y, %H:%M:%S')}")
+    logger.info(f"scan started: {humanize.naturaltime(elapsed_time)}")
+    logger.info(f"scanned underlyings: {symbols}")
+    logger.info(f"applied Filter: {filter}")
+    logger.info(f"found: {rows}")
 
     # write results to disk
     if ((args.output_path is not None) & (rows > 0)):
@@ -72,7 +83,7 @@ if __name__ == '__main__':
             data.to_excel(args.output_path)
         else:
             data.to_csv(args.output_path)
-        logger.info(f"- results written to disk: {args.output_path}")
+        logger.info(f"results written to disk: {args.output_path}")
     else:
         logger.info("- Results:")
         print("\n")

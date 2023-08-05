@@ -6,7 +6,7 @@ Lightweight Robo-Advisor for Stock Options
 
 The following use case is currently supported: **scan all available options for one or more stocks in a time frame**
 
-Information about stock options for the [underlyings](<https://www.investopedia.com/terms/u/underlying.asp>) are loaded in bulk based on your watchlist, filtered based on the given criteria and either printed on screen or stored on your file system.
+Information about stock options for the [underlyings](<https://www.investopedia.com/terms/u/underlying.asp>) are loaded in bulk based on your watchlist ([example](./resources/samples/settings.example.json)), filtered based on the given criteria and either printed on screen or stored on your file system.
 
 Highlighted criteria which you can filter on:
 
@@ -16,11 +16,11 @@ Highlighted criteria which you can filter on:
 - desired ROI based on minimum [yield](<https://www.investopedia.com/terms/y/yield.asp>)
 - desired intrinsic value based on [moneyness](<https://www.investopedia.com/terms/m/moneyness.asp>)
 
-The raw information about stock options and market prices is loaded from [Yahoo Finance](https://finance.yahoo.com/) and extended with additional calculations or hints.
-
 As result, you can generate a CSV or XLSX file with similar content to this:
 
 ![example result](./doc/media/example-result.png "Example Result")
+
+The raw information about stock options and market prices is loaded from [Yahoo Finance](https://finance.yahoo.com/) and extended with additional calculations or hints.
 
 ## Getting Started
 
@@ -64,6 +64,19 @@ For example, you can execute the program in your console as follows:
 
 ```bash
 python3 -m src.run -i ./resources/samples/settings.example.json -ms 35 -o ./out/results.csv
+```
+
+After execution, the program will end with a summary similar to this:
+
+```console
+-------- SUMMARY ---------
+
+datetime: 05/08/2023, 20:18:23
+scan started: 6 seconds ago
+scanned underlyings: ['AMZN', 'BAC']
+applied Filter: Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=35.0, moneyness=OTM)
+found: 1
+results written to disk: ./out/results.csv
 ```
 
 ### Web interface
