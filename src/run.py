@@ -32,9 +32,9 @@ if __name__ == '__main__':
     parser.add_argument('-mode', dest='mode', help='PUT (default) or CALL', type=Analyzer.Types, default=Analyzer.Types.PUT)
     parser.add_argument('-ms', dest='max_strike', help='filter for maximum acceptable strike (Default = 60)',
                         type=float, default=60)
-    parser.add_argument('-mp', dest='min_puts', help='filter for minium available puts (Default = 1000)',
+    parser.add_argument('-mp', dest='min_puts', help='filter for minium available interest in PUTs (Default = 1000)',
                         type=int, default=1000)
-    parser.add_argument('-mc', dest='min_calls', help='filter for minium available calls (Default = 1000)',
+    parser.add_argument('-mc', dest='min_calls', help='filter for minium available interest in CALLs (Default = 1000)',
                         type=int, default=1000)
     parser.add_argument('-my', dest='min_yield', help='filter for minimum acceptable yield (Default = 10)',
                         type=float, default=10)

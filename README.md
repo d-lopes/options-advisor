@@ -49,8 +49,8 @@ options:
   -i INPUT_FILE         an input file defining the settings to scan for options
   -mode MODE            PUT (default) or CALL
   -ms MAX_STRIKE        filter for maximum acceptable strike (Default = 60)
-  -mp MIN_PUTS          filter for minium available puts (Default = 1000)
-  -mc MIN_CALLS         filter for minium available calls (Default = 1000)
+  -mp MIN_PUTS          filter for minium available interest in PUTs (Default = 1000)
+  -mc MIN_CALLS         filter for minium available interest in CALLs (Default = 1000)
   -my MIN_YIELD         filter for minimum acceptable yield (Default = 10)
   -mn MONEYNESS         filter for the moneyness: OTM (default), ITM or ATM
   -swo START_WEEK_OFFSET

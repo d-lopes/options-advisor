@@ -25,8 +25,8 @@ class OptionsAnalyzer:
         BID = 'Bid'
         ASK = 'Ask'
         OPEN_INTEREST = 'Open Interest'
-        CALLS_CNT = '# Open CALLs'
-        PUTS_CNT = '# Open PUTs'
+        CALLS_CNT = '# Open Interest (CALLs)'
+        PUTS_CNT = '# Open Interest (PUTs)'
         IMPLIED_VOLATILITY = 'Implied Volatility'
         TAGS = 'Tags'
         # additional fields (provided by yahoo_fin)
