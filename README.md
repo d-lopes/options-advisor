@@ -10,7 +10,8 @@ Information about stock options for the [underlyings](<https://www.investopedia.
 
 Highlighted criteria which you can filter on:
 
-- desired balance between number of [PUT options](<https://www.investopedia.com/terms/p/putoption.asp>) and   number of [CALL options](<https://www.investopedia.com/terms/c/calloption.asp>)
+- desired balance between [open interest](https://www.investopedia.com/terms/o/openinterest.asp) for [PUT options](<https://www.investopedia.com/terms/p/putoption.asp>) and for [CALL options](<https://www.investopedia.com/terms/c/calloption.asp>)
+- desired market activity based on minimum daily [volume](https://www.investopedia.com/terms/v/volume.asp)
 - desired time frame for [expiration dates](<https://www.investopedia.com/terms/e/expirationdate.asp>)
 - desired cash 'at risk' based on maximum [strike price](<https://www.investopedia.com/terms/s/strikeprice.asp>)
 - desired ROI based on minimum [yield](<https://www.investopedia.com/terms/y/yield.asp>)
@@ -39,8 +40,8 @@ To run this command from command line, you have the following options:
 
 ```console
 usage: run.py [-h] -i INPUT_FILE [-mode MODE] [-ms MAX_STRIKE] [-mp MIN_PUTS] [-mc MIN_CALLS]
-              [-my MIN_YIELD] [-mn MONEYNESS] [-swo START_WEEK_OFFSET] [-ewo END_WEEK_OFFSET]
-              [-o OUTPUT_PATH] [-f OUTPUT_FORMAT]
+              [-mv MIN_VOLUME] [-my MIN_YIELD] [-mn MONEYNESS] [-swo START_WEEK_OFFSET]
+              [-ewo END_WEEK_OFFSET] [-o OUTPUT_PATH] [-f OUTPUT_FORMAT]
 
 gathers data about stock options
 
@@ -51,6 +52,7 @@ options:
   -ms MAX_STRIKE        filter for maximum acceptable strike (Default = 60)
   -mp MIN_PUTS          filter for minium available interest in PUTs (Default = 1000)
   -mc MIN_CALLS         filter for minium available interest in CALLs (Default = 1000)
+  -mv MIN_VOLUME        filter for minium available volume (Default = 100)
   -my MIN_YIELD         filter for minimum acceptable yield (Default = 10)
   -mn MONEYNESS         filter for the moneyness: OTM (default), ITM or ATM
   -swo START_WEEK_OFFSET
@@ -74,7 +76,7 @@ After execution, the program will end with a summary similar to this:
 finished run on: 05/08/2023, 20:18:23
 started scan at: 6 seconds ago
 scanned underlyings: ['AMZN', 'BAC']
-applied filter: Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=35.0, moneyness=OTM)
+applied filter: Filter(min_puts=1000, min_calls=1000, min_volume=100, min_yield=10, max_strike=35.0, moneyness=OTM)
 found options: 1
 results written to disk: ./out/results.csv
 ```

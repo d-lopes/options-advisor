@@ -16,15 +16,17 @@ class OptionsTableFilter(root.Processor):
     class FilterOptions:
         min_puts: Optional[int] = None
         min_calls: Optional[int] = None
+        min_volume: Optional[int] = None
         min_yield: Optional[float] = None
         max_strike: Optional[float] = None
         moneyness: Optional[str] = None
 
-        def __init__(self, min_puts: int = None, min_calls: int = None, min_yield: float = None,
-                     max_strike: float = None, moneyness: str = None):
+        def __init__(self, min_puts: int = None, min_calls: int = None, min_volume: int = None,
+                     min_yield: float = None, max_strike: float = None, moneyness: str = None):
 
             self.min_puts = min_puts
             self.min_calls = min_calls
+            self.min_volume = min_volume
             self.min_yield = min_yield
             self.max_strike = max_strike
             self.moneyness = moneyness
@@ -38,6 +40,7 @@ class OptionsTableFilter(root.Processor):
             ret_val = "Filter("
             ret_val += f"min_puts={self.min_puts}, "
             ret_val += f"min_calls={self.min_calls}, "
+            ret_val += f"min_volume={self.min_volume}, "
             ret_val += f"min_yield={self.min_yield}, "
             ret_val += f"max_strike={self.max_strike}, "
             ret_val += f"moneyness={moneyness}"
@@ -47,8 +50,8 @@ class OptionsTableFilter(root.Processor):
 
         @staticmethod
         def get_defaults():
-            return OptionsTableFilter.FilterOptions(min_puts=1000, min_calls=1000, min_yield=10, max_strike=100000,
-                                                    moneyness=OptionsTableFilter.Moneyness.IN)
+            return OptionsTableFilter.FilterOptions(min_puts=1000, min_calls=1000, min_volume=1, min_yield=10,
+                                                    max_strike=100000, moneyness=OptionsTableFilter.Moneyness.IN)
 
     filter: FilterOptions = None
     type: str = None
@@ -72,6 +75,10 @@ class OptionsTableFilter(root.Processor):
         # filter for minium available calls
         if (fltr.min_calls is not None):
             return_value = return_value.loc[return_value[fields.CALLS_CNT.value] >= fltr.min_calls]
+
+        # filter for minium available volume
+        if (fltr.min_volume is not None):
+            return_value = return_value.loc[return_value[fields.VOLUME.value] >= fltr.min_volume]
 
         # filter for minimum acceptable yield
         if (fltr.min_yield is not None):

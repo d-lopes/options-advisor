@@ -39,7 +39,7 @@ class OptionsAnalyzer:
 
     DATA_COLUMNS = [Fields.TICKER.value, Fields.TYPE.value, Fields.EXPIRATION_DATE.value, Fields.STRIKE.value,
                     Fields.YIELD.value, Fields.CURRENT_PRICE.value, Fields.DISTANCE.value, Fields.PREMIUM.value,
-                    Fields.BID.value, Fields.ASK.value, Fields.CALLS_CNT.value, Fields.PUTS_CNT.value,
+                    Fields.BID.value, Fields.ASK.value, Fields.CALLS_CNT.value, Fields.PUTS_CNT.value, Fields.VOLUME.value,
                     Fields.IMPLIED_VOLATILITY.value, Fields.TAGS.value]
 
     logger = logging.getLogger('optionsAnalyzer')
@@ -116,9 +116,15 @@ class OptionsAnalyzer:
         # get rid of invalid numeric values
         options = options[pd.to_numeric(options[OptionsAnalyzer.Fields.PUTS_CNT.value], errors='coerce').notnull()]
         options = options[pd.to_numeric(options[OptionsAnalyzer.Fields.CALLS_CNT.value], errors='coerce').notnull()]
+        options = options[pd.to_numeric(options[OptionsAnalyzer.Fields.VOLUME.value], errors='coerce').notnull()]
 
         # transform data types in columns
-        options = options.astype({OptionsAnalyzer.Fields.PUTS_CNT.value: 'int', OptionsAnalyzer.Fields.CALLS_CNT.value: 'int'})
+        options = options.astype({
+            OptionsAnalyzer.Fields.PUTS_CNT.value: 'int',
+            OptionsAnalyzer.Fields.CALLS_CNT.value: 'int',
+            OptionsAnalyzer.Fields.VOLUME.value: 'int'
+        })
+
         return options
 
     @staticmethod

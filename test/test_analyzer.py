@@ -101,6 +101,7 @@ class AnalyzerTest(PandasBaseTestCase):
         expected_value[ClassUnderTest.Fields.PREMIUM.value] = 0.72
         expected_value[ClassUnderTest.Fields.BID.value] = 0.7
         expected_value[ClassUnderTest.Fields.ASK.value] = 0.74
+        expected_value[ClassUnderTest.Fields.VOLUME.value] = 10
         expected_value[ClassUnderTest.Fields.IMPLIED_VOLATILITY.value] = '20.70%'
 
         mocked_data = self.mock_data.EXAMPLE_RESPONSE

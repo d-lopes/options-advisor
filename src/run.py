@@ -36,6 +36,8 @@ if __name__ == '__main__':
                         type=int, default=1000)
     parser.add_argument('-mc', dest='min_calls', help='filter for minium available interest in CALLs (Default = 1000)',
                         type=int, default=1000)
+    parser.add_argument('-mv', dest='min_volume', help='filter for minium available volume (Default = 100)',
+                        type=int, default=100)
     parser.add_argument('-my', dest='min_yield', help='filter for minimum acceptable yield (Default = 10)',
                         type=float, default=10)
     parser.add_argument('-mn', dest='moneyness', help='filter for the moneyness: OTM (default), ITM or ATM',
@@ -61,7 +63,8 @@ if __name__ == '__main__':
         file_data = json.load(file)
         symbols = file_data['watchlist']
 
-    filter = OptionsTableFilter.FilterOptions(args.min_puts, args.min_calls, args.min_yield, args.max_strike, args.moneyness)
+    filter = OptionsTableFilter.FilterOptions(min_puts=args.min_puts, min_calls=args.min_calls, min_volume=args.min_volume,
+                                              min_yield=args.min_yield, max_strike=args.max_strike, moneyness=args.moneyness)
     data = Analyzer.get_options(symbols, args.mode, 2023, start_week, end_week, filter)
     rows = len(data.index)
 

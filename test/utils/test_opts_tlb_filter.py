@@ -65,6 +65,12 @@ class OptionsTableFilterTest(PandasBaseTestCase):
         expected_idx = [6, 19]
         self._run_test_internal(test_filter, expected_idx)
 
+    def test_process_options_above_min_volume(self):
+
+        test_filter = ClassUnderTest.FilterOptions(min_volume=54)
+        expected_idx = [0, 3, 4, 5, 6, 11, 14]
+        self._run_test_internal(test_filter, expected_idx)
+
     def test_process_options_below_max_strike(self):
 
         test_filter = ClassUnderTest.FilterOptions(max_strike=31.0)
@@ -108,7 +114,7 @@ class OptionsTableFilterTest(PandasBaseTestCase):
         self._run_test_internal(test_filter, expected_idx, OptionsAnalyzer.Types.CALL)
 
     def test_default_filter_string_representation(self):
-        expected_value = "Filter(min_puts=1000, min_calls=1000, min_yield=10, max_strike=100000, moneyness=ITM)"
+        expected_value = "Filter(min_puts=1000, min_calls=1000, min_volume=1, min_yield=10, max_strike=100000, moneyness=ITM)"
 
         filter = ClassUnderTest.FilterOptions.get_defaults()
         actual_value = filter.__repr__()
@@ -116,12 +122,12 @@ class OptionsTableFilterTest(PandasBaseTestCase):
         self.assertEqual(expected_value, actual_value, 'unexpected return data')
 
     def test_no_filter_string_representation(self):
-        expected_value = "Filter(min_puts=None, min_calls=None, min_yield=None, max_strike=None, moneyness=None)"
+        exp_value = "Filter(min_puts=None, min_calls=None, min_volume=None, min_yield=None, max_strike=None, moneyness=None)"
 
         filter = ClassUnderTest.FilterOptions()
         actual_value = filter.__repr__()
 
-        self.assertEqual(expected_value, actual_value, 'unexpected return data')
+        self.assertEqual(exp_value, actual_value, 'unexpected return data')
 
 
 if __name__ == '__main__':
