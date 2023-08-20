@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
     print("\n-------- SUMMARY ---------")
     logger.info(f"finished run on: {now.strftime('%d/%m/%Y, %H:%M:%S')}")
-    logger.info(f"started scan at: {humanize.naturaltime(elapsed_time)} ({elapsed_time:.2f})")
+    logger.info(f"started scan at: {humanize.naturaltime(elapsed_time)} (took {elapsed_time:.2f} seconds overall)")
     logger.info(f"scanned {count} underlyings: {symbols}")
     logger.info(f"applied filter: {filter}")
     logger.info(f"found options: {rows}")
