@@ -7,8 +7,6 @@ import logging
 import argparse
 import json
 
-from IPython.display import display
-
 from src.analyzer import OptionsAnalyzer as Analyzer
 from src.utils.opts_tbl_filter import OptionsTableFilter
 
@@ -62,6 +60,7 @@ if __name__ == '__main__':
     with open(args.input_file) as file:
         file_data = json.load(file)
         symbols = file_data['watchlist']
+        count = len(symbols)
 
     filter = OptionsTableFilter.FilterOptions(min_puts=args.min_puts, min_calls=args.min_calls, min_volume=args.min_volume,
                                               min_yield=args.min_yield, max_strike=args.max_strike, moneyness=args.moneyness)
@@ -74,8 +73,8 @@ if __name__ == '__main__':
 
     print("\n-------- SUMMARY ---------")
     logger.info(f"finished run on: {now.strftime('%d/%m/%Y, %H:%M:%S')}")
-    logger.info(f"started scan at: {humanize.naturaltime(elapsed_time)}")
-    logger.info(f"scanned underlyings: {symbols}")
+    logger.info(f"started scan at: {humanize.naturaltime(elapsed_time)} ({elapsed_time:.2f})")
+    logger.info(f"scanned {count} underlyings: {symbols}")
     logger.info(f"applied filter: {filter}")
     logger.info(f"found options: {rows}")
 
@@ -90,6 +89,6 @@ if __name__ == '__main__':
     else:
         logger.info("results:")
         print("\n")
-        display(data)
+        print(data)
 
     print("\n")

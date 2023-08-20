@@ -152,6 +152,9 @@ class OptionsAnalyzer:
             except AssertionError:
                 OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
                 continue
+            except KeyError:
+                OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
+                continue
 
             data = OptionsAnalyzer._get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price)
 
