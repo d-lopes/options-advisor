@@ -71,11 +71,12 @@ python3 -m src.run -i ./resources/samples/settings.example.json -ms 35 -o ./out/
 After execution, the program will end with a summary similar to this:
 
 ```console
--------- SUMMARY ---------
+|████████████████████████████████████████| 8/8 [100%] in 9.8s (0.77/s)
 
-finished run on: 05/08/2023, 20:18:23
-started scan at: 6 seconds ago
-scanned underlyings: ['AMZN', 'BAC']
+-------- SUMMARY ---------
+finished run on: 20/08/2023, 19:45:41
+started scan at: 9 seconds ago (took 9.80 seconds overall)
+scanned 2 underlyings: ['AMZN', 'BAC']
 applied filter: Filter(min_puts=1000, min_calls=1000, min_volume=100, min_yield=10, max_strike=35.0, moneyness=OTM)
 found options: 1
 results written to disk: ./out/results.csv
