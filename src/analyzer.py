@@ -3,6 +3,8 @@ from enum import Enum
 import logging
 import pandas as pd
 
+from alive_progress import alive_bar
+
 from src.utils.yahoo_fin_wrapper import YahooFinanceWrapper
 from src.utils.highlighter import Highlighter
 from src.utils.exp_date_extractor import ExpirationDateExtractor
@@ -133,39 +135,42 @@ class OptionsAnalyzer:
 
         data = pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
 
-        for symbol in symbols:
-            try:
-                OptionsAnalyzer.logger.info(f"loading data for {symbol} ...")
-                price = YahooFinanceWrapper.get_live_price(symbol)
+        total_steps = len(symbols) * (end_week - start_week)
+        with alive_bar(total_steps) as bar:
+            for symbol in symbols:
+                try:
+                    OptionsAnalyzer.logger.debug(f"loading data for {symbol} ...")
+                    price = YahooFinanceWrapper.get_live_price(symbol)
 
-                # if filter is given, calculate threshold for price too high (when strike + 20%)
-                if (filter is not None):
-                    price_too_high = price > filter.max_strike * 1.2
-                else:
-                    price_too_high = False
+                    # if filter is given, calculate threshold for price too high (when strike + 20%)
+                    if (filter is not None):
+                        price_too_high = price > filter.max_strike * 1.2
+                    else:
+                        price_too_high = False
 
-                # skip processing of underlying when live price is above acceptable value
-                if price_too_high:
-                    OptionsAnalyzer.logger.warning(f"price of underlying {symbol} is too high. Skipping this symbol!")
+                    # skip processing of underlying when live price is above acceptable value
+                    if price_too_high:
+                        OptionsAnalyzer.logger.warning(f"price of underlying {symbol} is too high. Skipping this symbol!")
+                        continue
+
+                except AssertionError:
+                    OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
+                    continue
+                except KeyError:
+                    OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
                     continue
 
-            except AssertionError:
-                OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
-                continue
-            except KeyError:
-                OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
-                continue
-
-            data = OptionsAnalyzer._get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price)
+                data = OptionsAnalyzer._get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price,
+                                                             bar)
 
         return data
 
     @staticmethod
-    def _get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price):
+    def _get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price, bar):
         for week in range(start_week, end_week):
             expiration_date = date.fromisocalendar(year, week, 5)
             order_date = date.today()
-            OptionsAnalyzer.logger.info(f"get data for {symbol} with expiration date {expiration_date}")
+            OptionsAnalyzer.logger.debug(f"get data for {symbol} with expiration date {expiration_date}")
 
             try:
                 more_data = OptionsAnalyzer.get_info(symbol, mode, expiration_date, price, filter, order_date)
@@ -173,6 +178,9 @@ class OptionsAnalyzer:
                 OptionsAnalyzer.logger.error(f"unable to analyze data for symbol {symbol}. Continuing with next symbol!")
                 continue
             data = pd.concat([data, more_data], ignore_index=True)
+
+            # update progress bar
+            bar()
 
         # reindex for clean data frame
         data = data.reset_index(drop=True)
