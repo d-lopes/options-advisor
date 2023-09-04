@@ -1,5 +1,5 @@
 numpy>=1.22.2
-pandas==2.0.3
+pandas==2.1.0
 requests==2.31.0
 html5lib==1.1
 humanize==4.7.0
