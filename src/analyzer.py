@@ -151,13 +151,16 @@ class OptionsAnalyzer:
                     # skip processing of underlying when live price is above acceptable value
                     if price_too_high:
                         OptionsAnalyzer.logger.warning(f"price of underlying {symbol} is too high. Skipping this symbol!")
+                        bar(4, skipped=True)
                         continue
 
                 except AssertionError:
                     OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
+                    bar(4, skipped=True)
                     continue
                 except KeyError:
                     OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
+                    bar(4, skipped=True)
                     continue
 
                 data = OptionsAnalyzer._get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price,
@@ -176,6 +179,7 @@ class OptionsAnalyzer:
                 more_data = OptionsAnalyzer.get_info(symbol, mode, expiration_date, price, filter, order_date)
             except KeyError:
                 OptionsAnalyzer.logger.error(f"unable to analyze data for symbol {symbol}. Continuing with next symbol!")
+                bar(skipped=True)
                 continue
             data = pd.concat([data, more_data], ignore_index=True)
 
