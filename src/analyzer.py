@@ -135,7 +135,8 @@ class OptionsAnalyzer:
 
         data = pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
 
-        total_steps = len(symbols) * (end_week - start_week)
+        weeks_cnt = end_week - start_week
+        total_steps = len(symbols) * weeks_cnt
         with alive_bar(total_steps) as bar:
             for symbol in symbols:
                 try:
@@ -151,16 +152,16 @@ class OptionsAnalyzer:
                     # skip processing of underlying when live price is above acceptable value
                     if price_too_high:
                         OptionsAnalyzer.logger.warning(f"price of underlying {symbol} is too high. Skipping this symbol!")
-                        bar(4, skipped=True)
+                        bar(weeks_cnt, skipped=True)
                         continue
 
                 except AssertionError:
                     OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
-                    bar(4, skipped=True)
+                    bar(weeks_cnt, skipped=True)
                     continue
                 except KeyError:
                     OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
-                    bar(4, skipped=True)
+                    bar(weeks_cnt, skipped=True)
                     continue
 
                 data = OptionsAnalyzer._get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price,
