@@ -53,8 +53,18 @@ if __name__ == '__main__':
 
     # determine investing period
     now = datetime.now()    # current date and time
-    start_week = now.isocalendar().week + args.start_week_offset
+    current_week = now.strftime("%W")
+    current_year = now.year
+    start_week = int(current_week) + args.start_week_offset
+    start_year = current_year
     end_week = start_week - args.start_week_offset + args.end_week_offset
+    
+    # fix possible overflow at the end of the year 
+    if start_week > 52:
+        start_week = start_week - 52
+        start_year = current_year + 1
+    if end_week > 52:
+        end_week = end_week - 52
 
     # Opening input file in JSON format to retrieve the watchlist
     with open(args.input_file) as file:
@@ -64,7 +74,7 @@ if __name__ == '__main__':
 
     filter = OptionsTableFilter.FilterOptions(min_puts=args.min_puts, min_calls=args.min_calls, min_volume=args.min_volume,
                                               min_yield=args.min_yield, max_strike=args.max_strike, moneyness=args.moneyness)
-    data = Analyzer.get_options(symbols, args.mode, 2023, start_week, end_week, filter)
+    data = Analyzer.get_options(symbols, args.mode, start_year, start_week, end_week, filter)
     rows = len(data.index)
 
     # End timer and calculate elapsed time

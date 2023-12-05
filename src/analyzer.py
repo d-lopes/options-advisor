@@ -136,6 +136,11 @@ class OptionsAnalyzer:
         data = pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
 
         weeks_cnt = end_week - start_week
+        # when end date - start date is negative, then we are at the end of the year and there is a 
+        # week number overflow
+        if (weeks_cnt < 0):
+            weeks_cnt = 52 - start_week + end_week
+    
         total_steps = len(symbols) * weeks_cnt
         with alive_bar(total_steps) as bar:
             for symbol in symbols:
@@ -171,8 +176,21 @@ class OptionsAnalyzer:
 
     @staticmethod
     def _get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price, bar):
-        for week in range(start_week, end_week):
-            expiration_date = date.fromisocalendar(year, week, 5)
+        
+        # account for week number overflow at the end of tthe year
+        weeks_cnt = end_week - start_week
+        if (weeks_cnt < 0):
+            weeks_cnt = 52 - start_week + end_week    
+        
+        # due to potential week number overflow we need to make sure we never have a week bigger than 52
+        for week_no in range(0, weeks_cnt):
+            input_week = start_week + week_no
+            input_year = year
+            if (input_week > 52):
+                input_week = input_week - 52
+                input_year = year + 1
+            
+            expiration_date = date.fromisocalendar(input_year, input_week, 5)
             order_date = date.today()
             OptionsAnalyzer.logger.debug(f"get data for {symbol} with expiration date {expiration_date}")
 
