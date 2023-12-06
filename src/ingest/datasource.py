@@ -1,7 +1,10 @@
 
 class AbstractDataSource:
     
-    @staticmethod    
-    def loadData():
+    def __init__(self):
+        
+        pass
+    
+    def load_data(self):
     
         print("noop")

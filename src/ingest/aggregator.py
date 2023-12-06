@@ -1,4 +1,6 @@
-import src.ingest.datasource.AbstractDataSource as datasource
+import src.ingest.datasource as types
+
+import pandas as pd
 
 class DataSourceAggregator:
     
@@ -10,9 +12,18 @@ class DataSourceAggregator:
     
     def getData(self):
         
-        print("here is your data")
+        data = pd.DataFrame([])
+        for datasource in self.dataSources:
+            tmp = datasource.load_data()
+            data = pd.concat([data, tmp])
+            
+        return data
+    
         
-        
-    def addDataSource(self, datasource: datasource):
+    def addDataSource(self, datasource: types.AbstractDataSource):
         
         self.dataSources.append(datasource)
+        
+    def getDataSourceCount(self):
+        
+        return len(self.dataSources)
