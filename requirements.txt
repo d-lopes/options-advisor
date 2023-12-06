@@ -5,7 +5,8 @@ html5lib==1.1
 humanize==4.7.0
 requests_html==0.10.0
 yahoo_fin==0.8.9.1
+coverage==7
 alive-progress==3.1.5
 pytest==7.4.3
-coverage==7.3.0
+coverage==7.3.2
 pytest-cov==4.1.0
