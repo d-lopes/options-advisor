@@ -7,30 +7,22 @@ class AbstractDataSource:
         CALL = 'CALL'
     
     class Fields(Enum):
-        TICKER = 'Ticker'
-        TYPE = 'Type'
-        EXPIRATION_DATE = 'Exp. Date'
+        CONTRACT_NAME = 'Contract Name'
+        LAST_TRADE_DATE = 'Last Trade Date'
         STRIKE = 'Strike'
-        YIELD = 'Yield (p. a.)'
-        CURRENT_PRICE = 'Current Price'
-        DIFFERENCE = 'Difference'
-        DISTANCE = 'Distance (%)'
-        PREMIUM = 'Premium'
+        LAST_PRICE = 'Last Price'
         BID = 'Bid'
         ASK = 'Ask'
-        OPEN_INTEREST = 'Open Interest'
-        CALLS_CNT = '# Open Interest (CALLs)'
-        PUTS_CNT = '# Open Interest (PUTs)'
-        IMPLIED_VOLATILITY = 'Implied Volatility'
-        TAGS = 'Tags'
-        # additional fields (provided by yahoo_fin)
+        CHANGE = 'Change'
+        CHANGE_PCT = '% Change'
         VOLUME = 'Volume'
-        CONTRACT_NAME = 'Contract Name'
-
-    DATA_FIELDS = [Fields.TICKER.value, Fields.TYPE.value, Fields.EXPIRATION_DATE.value, Fields.STRIKE.value,
-                    Fields.YIELD.value, Fields.CURRENT_PRICE.value, Fields.DISTANCE.value, Fields.PREMIUM.value,
-                    Fields.BID.value, Fields.ASK.value, Fields.CALLS_CNT.value, Fields.PUTS_CNT.value, Fields.VOLUME.value,
-                    Fields.IMPLIED_VOLATILITY.value, Fields.TAGS.value]
+        OPEN_INTEREST = 'Open Interest'
+        IMPLIED_VOLATILITY = 'Implied Volatility'
+            
+    DATA_FIELDS = [Fields.CONTRACT_NAME.value, Fields.LAST_TRADE_DATE.value, Fields.STRIKE.value,
+                    Fields.LAST_PRICE.value, Fields.BID.value, Fields.ASK.value, 
+                    Fields.CHANGE.value, Fields.CHANGE_PCT, Fields.VOLUME.value,
+                    Fields.OPEN_INTEREST.value, Fields.IMPLIED_VOLATILITY.value]
 
     
     def __init__(self):
