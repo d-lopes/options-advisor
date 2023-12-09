@@ -12,11 +12,17 @@ class DataSourceAggregator:
     def __init__(self):
         self.dataSources = []
     
-    def getData(self, ticker, date=None, type: AbstractDataSource.OptionTypes = AbstractDataSource.OptionTypes.PUT):
+    
+    def loadData(self, ticker, date=None):
+        
+        for datasource in self.dataSources:
+            datasource.loadData(ticker=ticker, date=date)
+        
+    
+    def getData(self, type: AbstractDataSource.OptionTypes = AbstractDataSource.OptionTypes.PUT):
         
         data = pd.DataFrame([])
         for datasource in self.dataSources:
-            datasource.loadData(ticker=ticker, date=date)
             tmp = datasource.getData(type)
             data = pd.concat([data, tmp])
             

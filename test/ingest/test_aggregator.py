@@ -32,8 +32,9 @@ class DataSourceAggregatorTest(PandasBaseTestCase):
     
         expected_value = pd.DataFrame([])
 
-        actual_value = instance.getData(ticker=SampleData.SYMBOL, date=SampleData.EXP_DATE)
-
+        instance.loadData(ticker=SampleData.SYMBOL, date=SampleData.EXP_DATE)
+        actual_value = instance.getData()
+        
         self.assertEqual(expected_value, actual_value, 'unexpected return value')
 
 
@@ -61,7 +62,8 @@ class DataSourceAggregatorTest(PandasBaseTestCase):
         instance.addDataSource(test_double_2)
         instance.addDataSource(test_double_3)
         
-        actual_value = instance.getData(ticker=SampleData.SYMBOL, date=SampleData.EXP_DATE)
+        instance.loadData(ticker=SampleData.SYMBOL, date=SampleData.EXP_DATE)
+        actual_value = instance.getData()
         
         test_double_1.loadData.assert_called_once()
         test_double_2.loadData.assert_called_once()
