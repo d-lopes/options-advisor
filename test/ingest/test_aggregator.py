@@ -32,7 +32,7 @@ class DataSourceAggregatorTest(PandasBaseTestCase):
     
         expected_value = pd.DataFrame([])
 
-        actual_value = instance.getData()
+        actual_value = instance.getData(ticker=SampleData.SYMBOL, date=SampleData.EXP_DATE)
 
         self.assertEqual(expected_value, actual_value, 'unexpected return value')
 
@@ -46,21 +46,26 @@ class DataSourceAggregatorTest(PandasBaseTestCase):
         instance = ClassUnderTest()
         
         test_double_1 = abstractDataSource()
-        test_double_1.load_data = MagicMock(return_value=sample_value)
+        test_double_1.loadData = MagicMock()
+        test_double_1.getData = MagicMock(return_value=sample_value)
+        
         test_double_2 = abstractDataSource()
-        test_double_2.load_data = MagicMock(return_value=sample_value)
+        test_double_2.loadData = MagicMock()
+        test_double_2.getData = MagicMock(return_value=sample_value)
+ 
         test_double_3 = abstractDataSource()
-        test_double_3.load_data = MagicMock(return_value=sample_value)
+        test_double_3.loadData = MagicMock()
+        test_double_3.getData = MagicMock(return_value=sample_value)
         
         instance.addDataSource(test_double_1)
         instance.addDataSource(test_double_2)
         instance.addDataSource(test_double_3)
         
-        actual_value = instance.getData()
+        actual_value = instance.getData(ticker=SampleData.SYMBOL, date=SampleData.EXP_DATE)
         
-        test_double_1.load_data.assert_called_once()
-        test_double_2.load_data.assert_called_once()
-        test_double_3.load_data.assert_called_once()
+        test_double_1.loadData.assert_called_once()
+        test_double_2.loadData.assert_called_once()
+        test_double_3.loadData.assert_called_once()
         
         self.assertEqual(expected_value, actual_value, 'unexpected return value')
             
