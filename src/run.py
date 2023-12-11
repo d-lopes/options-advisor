@@ -8,6 +8,8 @@ import argparse
 import json
 
 from src.analyzer import OptionsAnalyzer
+from src.ingest.yahoo_fin import YahooFinanceDataSource
+from src.ingest.yoptions import YOptionDataSource
 from src.utils.opts_tbl_filter import OptionsTableFilter
 
 logger = logging.getLogger('main')
@@ -27,6 +29,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='gathers data about stock options')
     parser.add_argument('-i', dest='input_file', help='an input file defining the settings to scan for options',
                         type=str, required=True)
+    parser.add_argument('-ds', dest='datasource', help='yahoofin (default) or yoptions', type=str, 
+                        default='yahoofin')
     parser.add_argument('-mode', dest='mode', help='PUT (default) or CALL', type=OptionsAnalyzer.Types, 
                         default=OptionsAnalyzer.Types.PUT)
     parser.add_argument('-ms', dest='max_strike', help='filter for maximum acceptable strike (Default = 60)',
@@ -68,6 +72,7 @@ if __name__ == '__main__':
         end_week = end_week - 52
         end_year = current_year + 1
 
+    print("\n")
     logger.info(f"searching for {args.mode.value} options between calendar weeks {start_week}/{start_year} - {end_week}/{end_year}")
 
     # Opening input file in JSON format to retrieve the watchlist
@@ -78,7 +83,11 @@ if __name__ == '__main__':
 
     filter = OptionsTableFilter.FilterOptions(min_puts=args.min_puts, min_calls=args.min_calls, min_volume=args.min_volume,
                                               min_yield=args.min_yield, max_strike=args.max_strike, moneyness=args.moneyness)
-    analyzer = OptionsAnalyzer()
+    
+    datasource = YahooFinanceDataSource()
+    if (args.datasource == 'yoptions'):
+        datasource = YOptionDataSource()
+    analyzer = OptionsAnalyzer(datasource)
     data = analyzer.get_options(symbols, args.mode, start_year, start_week, end_week, filter)
     rows = len(data.index)
 

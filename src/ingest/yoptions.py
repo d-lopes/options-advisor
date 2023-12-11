@@ -1,4 +1,4 @@
-import src.ingest.datasource.AbstractDataSource as datasource
+from src.ingest.datasource import AbstractDataSource as datasource
 
 class YOptionDataSource(datasource):
 
@@ -7,6 +7,10 @@ class YOptionDataSource(datasource):
     
         
     def loadData(self, ticker, date=None):
+        print("noop")
+
+
+    def getData(self, type: datasource.OptionTypes = datasource.OptionTypes.PUT):
         print("noop")
 
         

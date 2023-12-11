@@ -4,7 +4,7 @@ from datetime import date
 import unittest
 from unittest.mock import patch
 
-from src.ingest.yahoo_fin import YahooFinanceDataSource as yfds
+from src.ingest.datasource import AbstractDataSource
 
 from src.analyzer import OptionsAnalyzer as ClassUnderTest
 from src.utils.opts_tbl_filter import OptionsTableFilter
@@ -17,7 +17,8 @@ from test.utils.pd_base_testcase import PandasBaseTestCase
 class AnalyzerTest(PandasBaseTestCase):
 
     mock_data = MockData()
-    classUnderTest = ClassUnderTest()
+    datasource = AbstractDataSource()
+    classUnderTest = ClassUnderTest(datasource)
 
     def setUp(self):
         PandasBaseTestCase.setUp(self)
@@ -27,7 +28,7 @@ class AnalyzerTest(PandasBaseTestCase):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
 
-        with patch.object(yfds, 'loadData') as mocked_method:
+        with patch.object(self.datasource, 'loadData') as mocked_method:
 
             mocked_method.side_effect = ValueError(Exception('symbol does not exist'))
 
@@ -46,8 +47,8 @@ class AnalyzerTest(PandasBaseTestCase):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
 
-        mockA = patch.object(yfds, 'loadData')
-        mockB = patch.object(yfds, 'getData', side_effect=self.mock_data.get_empty_data) 
+        mockA = patch.object(self.datasource, 'loadData')
+        mockB = patch.object(self.datasource, 'getData', side_effect=self.mock_data.get_empty_data) 
         
         with mockB, mockA as mocked_method:
 
@@ -66,8 +67,8 @@ class AnalyzerTest(PandasBaseTestCase):
 
         expected_value = SampleData.EXAMPLE_RESULT
         
-        mockA = patch.object(yfds, 'loadData')
-        mockB = patch.object(yfds, 'getData', side_effect=self.mock_data.get_example_data) 
+        mockA = patch.object(self.datasource, 'loadData')
+        mockB = patch.object(self.datasource, 'getData', side_effect=self.mock_data.get_example_data) 
         
         with mockB, mockA as mocked_method:
 
@@ -95,8 +96,8 @@ class AnalyzerTest(PandasBaseTestCase):
         expected_value[ClassUnderTest.Fields.VOLUME.value] = 10
         expected_value[ClassUnderTest.Fields.IMPLIED_VOLATILITY.value] = '20.70%'
 
-        mockA = patch.object(yfds, 'loadData')
-        mockB = patch.object(yfds, 'getData', side_effect=self.mock_data.get_example_data) 
+        mockA = patch.object(self.datasource, 'loadData')
+        mockB = patch.object(self.datasource, 'getData', side_effect=self.mock_data.get_example_data) 
         
         with mockB, mockA as mocked_method:
 
@@ -119,7 +120,7 @@ class AnalyzerTest(PandasBaseTestCase):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
 
-        with patch.object(yfds, 'getLivePrice') as mocked_method:
+        with patch.object(self.datasource, 'getLivePrice') as mocked_method:
 
             mocked_method.side_effect = AssertionError(Exception('symbol does not exist'))
 
@@ -137,8 +138,8 @@ class AnalyzerTest(PandasBaseTestCase):
 
         expected_value = pd.DataFrame(columns=ClassUnderTest.DATA_COLUMNS)
 
-        mock1 = patch.object(yfds, 'getLivePrice', return_value=48.1)
-        mock2 = patch.object(yfds, 'loadData')
+        mock1 = patch.object(self.datasource, 'getLivePrice', return_value=48.1)
+        mock2 = patch.object(self.datasource, 'loadData')
 
         test_filter = OptionsTableFilter.FilterOptions.get_defaults()
         test_filter.max_strike = 40
@@ -165,9 +166,9 @@ class AnalyzerTest(PandasBaseTestCase):
 
         symbols = [SampleData.SYMBOL]
 
-        mockA = patch.object(yfds, 'getLivePrice', return_value=48.1)
-        mockB = patch.object(yfds, 'getData', side_effect=self.mock_data.get_empty_data)
-        mockC = patch.object(yfds, 'loadData')
+        mockA = patch.object(self.datasource, 'getLivePrice', return_value=48.1)
+        mockB = patch.object(self.datasource, 'getData', side_effect=self.mock_data.get_empty_data)
+        mockC = patch.object(self.datasource, 'loadData')
         
         with mockA, mockB, mockC as mocked_method:
 

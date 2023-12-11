@@ -51,9 +51,9 @@ class OptionsAnalyzer:
 
     dataAggregator = None
     
-    def __init__(self):
+    def __init__(self, datasource: AbstractDataSource):
         self.dataAggregator = DataSourceAggregator()
-        self.dataAggregator.addDataSource(YahooFinanceDataSource())
+        self.dataAggregator.addDataSource(datasource)
 
 
     def get_info(self, ticker: str, type: Types = Types.PUT, expiration_date: date = None,
