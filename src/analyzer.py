@@ -5,7 +5,10 @@ import pandas as pd
 
 from alive_progress import alive_bar
 
-from src.utils.yahoo_fin_wrapper import YahooFinanceWrapper
+from src.ingest.aggregator import DataSourceAggregator
+from src.ingest.datasource import AbstractDataSource
+from src.ingest.yahoo_fin import YahooFinanceDataSource
+
 from src.utils.highlighter import Highlighter
 from src.utils.exp_date_extractor import ExpirationDateExtractor
 from src.utils.dyn_value_calc import DynamicValueCalculator
@@ -46,25 +49,31 @@ class OptionsAnalyzer:
 
     logger = logging.getLogger('optionsAnalyzer')
 
-    @staticmethod
-    def get_info(ticker: str, type: Types = Types.PUT, expiration_date: date = None,
+    dataAggregator = None
+    
+    def __init__(self):
+        self.dataAggregator = DataSourceAggregator()
+        self.dataAggregator.addDataSource(YahooFinanceDataSource())
+
+
+    def get_info(self, ticker: str, type: Types = Types.PUT, expiration_date: date = None,
                  price: float = 0, filter: OptionsTableFilter.FilterOptions = None, order_date: date = None):
         # get options
         try:
-            all_options = YahooFinanceWrapper.get_options_chain(ticker, expiration_date)
+            self.dataAggregator.loadData(ticker, expiration_date)
         except ValueError as err:
-            OptionsAnalyzer.logger.error(f"unable to retrieve data for symbol {ticker}: {err}")
+            self.logger.error(f"unable to retrieve data for symbol {ticker}: {err}")
             return pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
 
-        put_options = all_options['puts']
-        call_options = all_options['calls']
+        put_options = self.dataAggregator.getData(AbstractDataSource.OptionTypes.PUT)
+        call_options = self.dataAggregator.getData(AbstractDataSource.OptionTypes.CALL)
 
         # guard: if no data is returned then stop processing
         if (put_options.empty & call_options.empty):
             return pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
 
         # extract expiration dates
-        col_name1 = OptionsAnalyzer.Fields.CONTRACT_NAME.value
+        col_name1 = AbstractDataSource.Fields.CONTRACT_NAME.value
         col_name2 = OptionsAnalyzer.Fields.EXPIRATION_DATE.value
         ede = ExpirationDateExtractor(ordinal=10, ticker=ticker, source=col_name1, target=col_name2)
         put_options = ede.process(put_options)
@@ -72,7 +81,7 @@ class OptionsAnalyzer:
 
         # link PUTs and CALLs based on their strike price and expiration date
         options = OptionsAnalyzer.link_puts_and_calls(type, put_options, call_options)
-
+            
         # calculate dynamic values
         dvc = DynamicValueCalculator(ordinal=20, expiration_date=expiration_date, order_date=order_date, price=price)
         options = dvc.process(options)
@@ -94,6 +103,7 @@ class OptionsAnalyzer:
 
         return relevant_options[OptionsAnalyzer.DATA_COLUMNS]
 
+
     @staticmethod
     def link_puts_and_calls(type, put_options, call_options):
 
@@ -106,13 +116,14 @@ class OptionsAnalyzer:
             raise ValueError(Exception(f"invalid type '{type}'"))
 
         # cosmetic changes: name columns properly
-        options = options.rename(columns={'Last Price': OptionsAnalyzer.Fields.PREMIUM.value})
-        open_interest_orig_column_name = OptionsAnalyzer.Fields.OPEN_INTEREST.value + '_merged'
+        fields = AbstractDataSource.Fields
+        options = options.rename(columns={fields.LAST_PRICE.value: OptionsAnalyzer.Fields.PREMIUM.value})
+        open_interest_orig_column_name = fields.OPEN_INTEREST.value + '_merged'
         if (type == OptionsAnalyzer.Types.PUT):
-            options[OptionsAnalyzer.Fields.PUTS_CNT.value] = options[OptionsAnalyzer.Fields.OPEN_INTEREST.value]
+            options[OptionsAnalyzer.Fields.PUTS_CNT.value] = options[fields.OPEN_INTEREST.value]
             options = options.rename(columns={open_interest_orig_column_name: OptionsAnalyzer.Fields.CALLS_CNT.value})
         elif (type == OptionsAnalyzer.Types.CALL):
-            options[OptionsAnalyzer.Fields.CALLS_CNT.value] = options[OptionsAnalyzer.Fields.OPEN_INTEREST.value]
+            options[OptionsAnalyzer.Fields.CALLS_CNT.value] = options[fields.OPEN_INTEREST.value]
             options = options.rename(columns={open_interest_orig_column_name: OptionsAnalyzer.Fields.PUTS_CNT.value})
 
         # get rid of invalid numeric values
@@ -129,8 +140,8 @@ class OptionsAnalyzer:
 
         return options
 
-    @staticmethod
-    def get_options(symbols=('BAC',), mode: Types = Types.PUT, year: int = 2023,
+
+    def get_options(self, symbols=('BAC',), mode: Types = Types.PUT, year: int = 2023,
                     start_week: int = 1, end_week: int = 1, filter: OptionsTableFilter.FilterOptions = None):
 
         data = pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
@@ -146,8 +157,8 @@ class OptionsAnalyzer:
             for symbol in symbols:
                 try:
                     OptionsAnalyzer.logger.debug(f"loading data for {symbol} ...")
-                    price = YahooFinanceWrapper.get_live_price(symbol)
-
+                    price = self.dataAggregator.getPrice(symbol)
+                    
                     # if filter is given, calculate threshold for price too high (when strike + 20%)
                     if (filter is not None):
                         price_too_high = price > filter.max_strike * 1.2
@@ -169,13 +180,13 @@ class OptionsAnalyzer:
                     bar(weeks_cnt, skipped=True)
                     continue
 
-                data = OptionsAnalyzer._get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price,
-                                                             bar)
+                data = self._get_options_internal(mode, year, start_week, end_week, filter, data,
+                                                    symbol, price, bar)
 
         return data
 
-    @staticmethod
-    def _get_options_internal(mode, year, start_week, end_week, filter, data, symbol, price, bar):
+
+    def _get_options_internal(self, mode, year, start_week, end_week, filter, data, symbol, price, bar):
         
         # account for week number overflow at the end of tthe year
         weeks_cnt = end_week - start_week
@@ -195,7 +206,7 @@ class OptionsAnalyzer:
             OptionsAnalyzer.logger.debug(f"get data for {symbol} with expiration date {expiration_date}")
 
             try:
-                more_data = OptionsAnalyzer.get_info(symbol, mode, expiration_date, price, filter, order_date)
+                more_data = self.get_info(symbol, mode, expiration_date, price, filter, order_date)
             except KeyError:
                 OptionsAnalyzer.logger.error(f"unable to analyze data for symbol {symbol}. Continuing with next symbol!")
                 bar(skipped=True)

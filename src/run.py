@@ -7,7 +7,7 @@ import logging
 import argparse
 import json
 
-from src.analyzer import OptionsAnalyzer as Analyzer
+from src.analyzer import OptionsAnalyzer
 from src.utils.opts_tbl_filter import OptionsTableFilter
 
 logger = logging.getLogger('main')
@@ -27,7 +27,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='gathers data about stock options')
     parser.add_argument('-i', dest='input_file', help='an input file defining the settings to scan for options',
                         type=str, required=True)
-    parser.add_argument('-mode', dest='mode', help='PUT (default) or CALL', type=Analyzer.Types, default=Analyzer.Types.PUT)
+    parser.add_argument('-mode', dest='mode', help='PUT (default) or CALL', type=OptionsAnalyzer.Types, 
+                        default=OptionsAnalyzer.Types.PUT)
     parser.add_argument('-ms', dest='max_strike', help='filter for maximum acceptable strike (Default = 60)',
                         type=float, default=60)
     parser.add_argument('-mp', dest='min_puts', help='filter for minium available interest in PUTs (Default = 1000)',
@@ -65,6 +66,9 @@ if __name__ == '__main__':
         start_year = current_year + 1
     if end_week > 52:
         end_week = end_week - 52
+        end_year = current_year + 1
+
+    logger.info(f"searching for {args.mode.value} options between calendar weeks {start_week}/{start_year} - {end_week}/{end_year}")
 
     # Opening input file in JSON format to retrieve the watchlist
     with open(args.input_file) as file:
@@ -74,7 +78,8 @@ if __name__ == '__main__':
 
     filter = OptionsTableFilter.FilterOptions(min_puts=args.min_puts, min_calls=args.min_calls, min_volume=args.min_volume,
                                               min_yield=args.min_yield, max_strike=args.max_strike, moneyness=args.moneyness)
-    data = Analyzer.get_options(symbols, args.mode, start_year, start_week, end_week, filter)
+    analyzer = OptionsAnalyzer()
+    data = analyzer.get_options(symbols, args.mode, start_year, start_week, end_week, filter)
     rows = len(data.index)
 
     # End timer and calculate elapsed time

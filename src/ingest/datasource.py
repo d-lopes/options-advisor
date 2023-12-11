@@ -21,7 +21,7 @@ class AbstractDataSource:
             
     DATA_FIELDS = [Fields.CONTRACT_NAME.value, Fields.LAST_TRADE_DATE.value, Fields.STRIKE.value,
                     Fields.LAST_PRICE.value, Fields.BID.value, Fields.ASK.value, 
-                    Fields.CHANGE.value, Fields.CHANGE_PCT, Fields.VOLUME.value,
+                    Fields.CHANGE.value, Fields.CHANGE_PCT.value, Fields.VOLUME.value,
                     Fields.OPEN_INTEREST.value, Fields.IMPLIED_VOLATILITY.value]
 
     
