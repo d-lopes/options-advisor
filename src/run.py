@@ -11,6 +11,7 @@ from src.analyzer import OptionsAnalyzer
 from src.ingest.yahoo_fin import YahooFinanceDataSource
 from src.ingest.yoptions import YOptionDataSource
 from src.utils.opts_tbl_filter import OptionsTableFilter
+from src.utils.exp_date_generator import ExpiryDateGenerator
 
 logger = logging.getLogger('main')
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -88,7 +89,9 @@ if __name__ == '__main__':
     if (args.datasource == 'yoptions'):
         datasource = YOptionDataSource()
     analyzer = OptionsAnalyzer(datasource)
-    data = analyzer.get_options(symbols, args.mode, start_year, start_week, end_week, filter)
+    expiry_dates = ExpiryDateGenerator.getDates(start_week_offset=args.start_week_offset,
+                                                end_week_offset=args.end_week_offset)
+    data = analyzer.get_options(symbols, args.mode, expiry_dates, filter)
     rows = len(data.index)
 
     # End timer and calculate elapsed time

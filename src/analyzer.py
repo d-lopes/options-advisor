@@ -141,17 +141,11 @@ class OptionsAnalyzer:
         return options
 
 
-    def get_options(self, symbols=('BAC',), mode: Types = Types.PUT, year: int = 2023,
-                    start_week: int = 1, end_week: int = 1, filter: OptionsTableFilter.FilterOptions = None):
+    def get_options(self, symbols=('BAC',), mode: Types = Types.PUT, expiry_dates = [], filter: OptionsTableFilter.FilterOptions = None):
 
         data = pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
 
-        weeks_cnt = end_week - start_week
-        # when end date - start date is negative, then we are at the end of the year and there is a 
-        # week number overflow
-        if (weeks_cnt < 0):
-            weeks_cnt = 52 - start_week + end_week
-    
+        weeks_cnt = len(expiry_dates)
         total_steps = len(symbols) * weeks_cnt
         with alive_bar(total_steps) as bar:
             for symbol in symbols:
@@ -180,29 +174,15 @@ class OptionsAnalyzer:
                     bar(weeks_cnt, skipped=True)
                     continue
 
-                data = self._get_options_internal(mode, year, start_week, end_week, filter, data,
-                                                    symbol, price, bar)
+                data = self._get_options_internal(mode, expiry_dates, filter, data, symbol, price, bar)
 
         return data
 
 
-    def _get_options_internal(self, mode, year, start_week, end_week, filter, data, symbol, price, bar):
+    def _get_options_internal(self, mode, expiry_dates, filter, data, symbol, price, bar):
         
-        # account for week number overflow at the end of tthe year
-        weeks_cnt = end_week - start_week
-        if (weeks_cnt < 0):
-            weeks_cnt = 52 - start_week + end_week    
-        
-        # due to potential week number overflow we need to make sure we never have a week bigger than 52
-        for week_no in range(0, weeks_cnt):
-            input_week = start_week + week_no
-            input_year = year
-            if (input_week > 52):
-                input_week = input_week - 52
-                input_year = year + 1
-            
-            expiration_date = date.fromisocalendar(input_year, input_week, 5)
-            order_date = date.today()
+        order_date = date.today()
+        for expiration_date in expiry_dates:
             OptionsAnalyzer.logger.debug(f"get data for {symbol} with expiration date {expiration_date}")
 
             try:

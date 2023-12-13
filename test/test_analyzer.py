@@ -124,7 +124,8 @@ class AnalyzerTest(PandasBaseTestCase):
 
             mocked_method.side_effect = AssertionError(Exception('symbol does not exist'))
 
-            actual_value = self.classUnderTest.get_options(symbols=[SampleData.SYMBOL], year=2023, start_week=33, end_week=34)
+            expiry_dates = [date.fromisoformat('2023-08-18')]
+            actual_value = self.classUnderTest.get_options(symbols=[SampleData.SYMBOL], expiry_dates=expiry_dates)
 
             # ensure mock for get_live_price() was called
             mocked_method.assert_called_once()
@@ -145,9 +146,10 @@ class AnalyzerTest(PandasBaseTestCase):
         test_filter.max_strike = 40
 
         with mock1 as get_live_price, mock2 as get_options_chain:
-
-            actual_value = self.classUnderTest.get_options(symbols=[SampleData.SYMBOL], year=2023,
-                                                      start_week=33, end_week=34, filter=test_filter)
+            
+            expiry_dates = [date.fromisoformat('2023-08-18')]
+            actual_value = self.classUnderTest.get_options(symbols=[SampleData.SYMBOL],
+                                                            expiry_dates=expiry_dates, filter=test_filter)
 
             # ensure mock for get_live_price() was called
             get_live_price.assert_called_once()
@@ -172,7 +174,11 @@ class AnalyzerTest(PandasBaseTestCase):
         
         with mockA, mockB, mockC as mocked_method:
 
-            actual_value = self.classUnderTest.get_options(symbols=symbols, year=2023, start_week=32, end_week=36)
+            expiry_dates = [
+                date.fromisoformat('2023-08-11'), date.fromisoformat('2023-08-18'),
+                date.fromisoformat('2023-08-25'), date.fromisoformat('2023-09-01')
+            ]
+            actual_value = self.classUnderTest.get_options(symbols=symbols, expiry_dates=expiry_dates)
 
             # ensure mock was called with corresponding expiration dates
             mocked_method.assert_any_call(ticker=SampleData.SYMBOL, date=date.fromisoformat("2023-08-11"))
