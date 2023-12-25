@@ -178,7 +178,6 @@ class OptionsAnalyzer:
 
         return data
 
-
     def _get_options_internal(self, mode, expiry_dates, filter, data, symbol, price, bar):
         
         order_date = date.today()

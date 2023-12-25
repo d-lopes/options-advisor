@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     filter = OptionsTableFilter.FilterOptions(min_puts=args.min_puts, min_calls=args.min_calls, min_volume=args.min_volume,
                                               min_yield=args.min_yield, max_strike=args.max_strike, moneyness=args.moneyness)
-    
+
     datasource = YahooFinanceDataSource()
     if (args.datasource == 'yoptions'):
         datasource = YOptionDataSource()

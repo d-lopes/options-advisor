@@ -94,6 +94,9 @@ will be provided in the future
 
 ## How to test?
 
-simply run `coverage run -m pytest` from the root directory
+simply run `coverage run -m pytest` from the root directory to see an overview of successful and failing tests.
+
+If you want to run a specific test, just invoke `pytest -k "DataSourceAggregatorTest"` whereas "DataSourceAggregatorTest" is the name of your test class and/or method.
+
 
 see answer to following stack overflow article for further info: <https://stackoverflow.com/questions/1896918/running-unittest-with-typical-test-directory-structure>
