@@ -48,6 +48,7 @@ gathers data about stock options
 options:
   -h, --help            show this help message and exit
   -i INPUT_FILE         an input file defining the settings to scan for options
+  -ds DATASOURCE        yahoofin (default) or yoptions
   -mode MODE            PUT (default) or CALL
   -ms MAX_STRIKE        filter for maximum acceptable strike (Default = 60)
   -mp MIN_PUTS          filter for minium available interest in PUTs (Default = 1000)
@@ -71,14 +72,15 @@ python3 -m src.run -i ./resources/samples/settings.example.json -ms 35 -o ./out/
 After execution, the program will end with a summary similar to this:
 
 ```console
+searching for PUT options between calendar weeks 52/2023 - 4/2024
 |████████████████████████████████████████| 8/8 [100%] in 9.8s (0.77/s)
 
 -------- SUMMARY ---------
-finished run on: 20/08/2023, 19:45:41
+finished run on: 04/12/2023, 19:45:41
 started scan at: 9 seconds ago (took 9.80 seconds overall)
 scanned 2 underlyings: ['AMZN', 'BAC']
 applied filter: Filter(min_puts=1000, min_calls=1000, min_volume=100, min_yield=10, max_strike=35.0, moneyness=OTM)
-found options: 1
+found options: 4
 results written to disk: ./out/results.csv
 ```
 
