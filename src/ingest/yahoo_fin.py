@@ -34,7 +34,6 @@ class YahooFinanceDataSource(datasource):
             all_options = opts.get_options_chain(ticker=ticker, date=date, raw=True, headers=types.MappingProxyType({'User-agent': 'Mozilla/5.0'}))
         except ValueError as err:
             self.logger.error(f"unable to retrieve data for symbol {ticker}: {err}")
-            return self.EMPTY_VALUE
 
         # guard: if no data for PUTs is returned then don't update internal store
         if (not all_options['puts'].empty):
