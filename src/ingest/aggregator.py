@@ -24,7 +24,7 @@ class DataSourceAggregator:
         data = pd.DataFrame(columns=AbstractDataSource.DATA_FIELDS)
         for datasource in self.dataSources:
             tmp = datasource.getData(type)
-            data = pd.concat([data.astype(tmp.dtypes), tmp.astype(data.dtypes)])
+            data = pd.concat([data.astype(tmp.dtypes), tmp.astype(tmp.dtypes)])
             
         return data
     
