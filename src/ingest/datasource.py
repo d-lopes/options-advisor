@@ -8,7 +8,7 @@ class AbstractDataSource:
     
     class Fields(Enum):
         CONTRACT_NAME = 'Contract Name'
-        LAST_TRADE_DATE = 'Last Trade Date'
+        LAST_TRADE_DATE = 'Last Trade Date (EDT)'
         STRIKE = 'Strike'
         LAST_PRICE = 'Last Price'
         BID = 'Bid'

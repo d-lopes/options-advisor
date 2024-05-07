@@ -58,11 +58,17 @@ class OptionsAnalyzer:
 
     def get_info(self, ticker: str, type: Types = Types.PUT, expiration_date: date = None,
                  price: float = 0, filter: OptionsTableFilter.FilterOptions = None, order_date: date = None):
+        
+        self.logger.debug(f">>> method OptionsAnalyzer.get_info called with ticker: {ticker}, type: {type}, expiration_date: {expiration_date}, price: {price}, filter: {filter}, order_date: {order_date}")
+
         # get options
         try:
             self.dataAggregator.loadData(ticker, expiration_date)
         except ValueError as err:
-            self.logger.error(f"unable to retrieve data for symbol {ticker}: {err}")
+            self.logger.error(f"unable to retrieve data for symbol {ticker} due to value error: {err}")
+            return pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
+        except KeyError as err: 
+            self.logger.error(f"unable to retrieve data for symbol {ticker} due to key error: {err}")
             return pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
 
         put_options = self.dataAggregator.getData(AbstractDataSource.OptionTypes.PUT)
@@ -79,12 +85,18 @@ class OptionsAnalyzer:
         put_options = ede.process(put_options)
         call_options = ede.process(call_options)
 
+        self.logger.debug(f"    -> method get_info: before link_puts_and_calls")
+
         # link PUTs and CALLs based on their strike price and expiration date
         options = OptionsAnalyzer.link_puts_and_calls(type, put_options, call_options)
             
+        self.logger.debug(f"    -> method get_info: before DynamicValueCalculator")
+
         # calculate dynamic values
         dvc = DynamicValueCalculator(ordinal=20, expiration_date=expiration_date, order_date=order_date, price=price)
         options = dvc.process(options)
+
+        self.logger.debug(f"    -> method get_info: before OptionsTableFilter")
 
         # filter for relevant data
         otf = OptionsTableFilter(ordinal=30, type=type, filter=filter)
@@ -95,11 +107,16 @@ class OptionsAnalyzer:
         relevant_options[OptionsAnalyzer.Fields.TYPE.value] = type.value
         relevant_options[OptionsAnalyzer.Fields.CURRENT_PRICE.value] = price
 
+
+        self.logger.debug(f"    -> method get_info: before highlighter")
+
         # highlight aspects
         relevant_options[OptionsAnalyzer.Fields.TAGS.value] = relevant_options.apply(Highlighter.determine_tags, axis=1)
 
         # reindex or clean data frame
         relevant_options = relevant_options.reset_index(drop=True)
+
+        self.logger.debug(f"<<< method get_info executed successfully!")
 
         return relevant_options[OptionsAnalyzer.DATA_COLUMNS]
 
@@ -165,12 +182,12 @@ class OptionsAnalyzer:
                         bar(weeks_cnt, skipped=True)
                         continue
 
-                except AssertionError:
-                    OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
+                except AssertionError as err:
+                    OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}: {err} ...")
                     bar(weeks_cnt, skipped=True)
                     continue
-                except KeyError:
-                    OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}.")
+                except KeyError as err:
+                    OptionsAnalyzer.logger.error(f"unable to retrieve price for symbol {symbol}: {err} ...")
                     bar(weeks_cnt, skipped=True)
                     continue
 
@@ -186,8 +203,8 @@ class OptionsAnalyzer:
 
             try:
                 more_data = self.get_info(symbol, mode, expiration_date, price, filter, order_date)
-            except KeyError:
-                OptionsAnalyzer.logger.error(f"unable to analyze data for symbol {symbol}. Continuing with next symbol!")
+            except KeyError as err: 
+                OptionsAnalyzer.logger.error(f"unable to analyze data for symbol {symbol}: {err} ... Continuing with next symbol!")
                 bar(skipped=True)
                 continue
             data = pd.concat([data, more_data], ignore_index=True)
