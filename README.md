@@ -27,10 +27,10 @@ The raw information about stock options and market prices is loaded from [Yahoo 
 
 ### prerequisites
 
-- python 3.11 must be installed
+- python 3.11 must be installed (I can recommend working with [pyenv](<https://github.com/pyenv/pyenv>) like so: `pyenv virtualenv 3.11 options-advisor`)
 - the dependencies from the `./requirements.txt` must be installed via pip
     => run this command from command line within the root directory of this repo: `pip3 install -r requirements.txt`
-- if you want to export the results of your scan of stock options to XLSX format, then you need to to run `pip install openpyxl` so that you have the required python modules on your local machine
+- OPTIONAL: if you want to export the results of your scan of stock options to XLSX format, then you need to run `pip3 install openpyxl` so that you have the required python modules on your local machine
 
 ## Usage
 
