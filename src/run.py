@@ -72,6 +72,8 @@ if __name__ == '__main__':
     if end_week > 52:
         end_week = end_week - 52
         end_year = current_year + 1
+    else:
+        end_year = current_year
 
     print("\n")
     logger.info(f"searching for {args.mode.value} options between calendar weeks {start_week}/{start_year} - {end_week}/{end_year}")
