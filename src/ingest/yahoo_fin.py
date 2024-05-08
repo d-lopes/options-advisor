@@ -11,6 +11,9 @@ import pandas as pd
 
 class YahooFinanceDataSource(datasource):
 
+    NO_PUTS_INDICATOR = "There are no puts."
+    NO_CALLS_INDICATOR = "There are no calls."
+
     put_options = None
     call_options = None
 
@@ -37,11 +40,19 @@ class YahooFinanceDataSource(datasource):
         # guard: if no data for PUTs is returned then don't update internal store
         if (not all_options['puts'].empty):
             self.put_options = all_options['puts']
+            # unfortunately, yahoo_fin does output that there are no calls in text form instead of an empty dataframe
+            # here we are trying to fix this behaviour
+            if (self.NO_PUTS_INDICATOR in self.put_options.values):
+                self.put_options = pd.DataFrame(columns=datasource.DATA_FIELDS)
+            
 
         # guard: if no data for CALLs is returned then don't update internal store
         if (not all_options['calls'].empty):
             self.call_options = all_options['calls']
-
+            # unfortunately, yahoo_fin does output that there are no calls in text form instead of an empty dataframe
+            # here we are trying to fix this behaviour
+            if (self.NO_CALLS_INDICATOR in self.call_options.values):
+                self.call_options = pd.DataFrame(columns=datasource.DATA_FIELDS)
 
     def getData(self, type: datasource.OptionTypes = datasource.OptionTypes.PUT):
 

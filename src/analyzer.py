@@ -111,7 +111,10 @@ class OptionsAnalyzer:
         self.logger.debug(f"    -> method get_info: before highlighter")
 
         # highlight aspects
-        relevant_options[OptionsAnalyzer.Fields.TAGS.value] = relevant_options.apply(Highlighter.determine_tags, axis=1)
+        if not relevant_options.empty:
+            relevant_options[OptionsAnalyzer.Fields.TAGS.value] = relevant_options.apply(Highlighter.determine_tags, axis=1)
+        else:
+            self.logger.warning(f"no relevant options found for ticker '{ticker}'!")
 
         # reindex or clean data frame
         relevant_options = relevant_options.reset_index(drop=True)
