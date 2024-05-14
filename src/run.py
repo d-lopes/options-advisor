@@ -1,3 +1,6 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 from datetime import datetime, timedelta
 import time
 import humanize

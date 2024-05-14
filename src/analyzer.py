@@ -110,12 +110,15 @@ class OptionsAnalyzer:
 
         self.logger.debug(f"    -> method get_info: before highlighter")
 
-        # highlight aspects
-        if not relevant_options.empty:
-            relevant_options[OptionsAnalyzer.Fields.TAGS.value] = relevant_options.apply(Highlighter.determine_tags, axis=1)
-        else:
-            self.logger.warning(f"no relevant options found for ticker '{ticker}'!")
+        # guard: return empty data frame, when there are no relevant options
+        if relevant_options.empty:
+            self.logger.warning(f"no relevant options found for ticker '{ticker}' on '{expiration_date}'!")
+            self.logger.debug(f"<<< method get_info executed successfully!")
+            return pd.DataFrame(columns=OptionsAnalyzer.DATA_COLUMNS)
 
+        # highlight aspects
+        relevant_options[OptionsAnalyzer.Fields.TAGS.value] = relevant_options.apply(Highlighter.determine_tags, axis=1)
+            
         # reindex or clean data frame
         relevant_options = relevant_options.reset_index(drop=True)
 
